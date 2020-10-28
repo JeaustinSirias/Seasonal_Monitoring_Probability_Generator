@@ -2,9 +2,8 @@ from tkinter import *
 from ttk import Combobox
 import pandas as pd
 import numpy as np
-from tkinter import filedialog
-
-
+from tkinter import filedialog, messagebox
+import matplotlib.pyplot as plt
 
 
 class App:
@@ -35,20 +34,8 @@ class App:
 
         '''
         self.analogs_lst = np.arange(1, 40, 1)
-
         self.radio_button = IntVar(self.frame)
-
-        self.variable_rank.set('')
-        self.variable_init_dekad.set('')
-        self.variable_end_dekad.set('')
-        self.out = None
-
-
         #climatology
-
-        self.variable_init_clim.set('')
-        self.variable_end_clim.set('')
-        self.variable_analogs_lst.set('')
         '''
 
         #LABELS
@@ -65,7 +52,7 @@ class App:
 
         #BUTTONS
         self.HELP = Button(frame, text='About')
-        self.RUN = Button(frame, text='GENERATE REPORTS')                                                                                                                                                                                
+        self.RUN = Button(frame, text='GENERATE REPORTS', command=lambda:App.RUN(self))                                                                                                                                                                                
         self.BROWSE = Button(frame, text='Browse Files', width=25, command=lambda:App.BROWSE(self))
         self.CLEAR = Button(frame, text='Clear', width=17)
         self.entry = Entry(frame, width=54, text=self.fileOpen)
@@ -139,7 +126,6 @@ class App:
                     locs.append(key)
 
                 except ValueError:
-
                     key = locNames[i]
                     locs.append(key)
 
@@ -159,24 +145,24 @@ class App:
 
             #=OUTPUT: returns a 3rd dim array with this features: [locations'_tags, header, raw data]
             self.out = np.array([locs, np.array(header_str), raw, scenarios])
-            tkinter.messagebox.showinfo('Data loaded!', 'Input dataset goes from {init} to {end}'.format(init = self.out[1][0][0:4], end = self.out[1][-1][0:4]))
+            messagebox.showinfo('Data loaded', 'Input dataset goes from {init} to {end}'.format(init=self.out[1][0][0:4], end=self.out[1][-1][0:4]))
 
         
 
     def RUN(self):
-        pass
+
+        a = [1,2,4,7,9,7,8]
+        b = range(len(a))
+        plt.plot(b, a)
+        plt.show()
+
+    
 
     def CLEAR(self):
         pass
 
     def HELP(self):
         pass
-
-
-
-
-
-
 
 
 root = Tk()
