@@ -1,4 +1,2 @@
-import sys
-sys.path.append('./src/')
-from GUI import *
-from smpg import *
+# -*- coding: utf-8 -*-
+from .context import source

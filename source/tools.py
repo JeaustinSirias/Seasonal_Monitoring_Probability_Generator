@@ -7,7 +7,6 @@ import pandas as pd
 from scipy.stats import rankdata
 #============================================================
 def year_format(number):
-
 	return int(number // 100)
 #============================================================
 def read(csv_file):

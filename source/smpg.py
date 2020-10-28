@@ -4,6 +4,11 @@ import matplotlib.pyplot as plt
 
 
 class smpgTools():
+	
+	'''
+	A class that contains all the necessary methods to
+	build the SMPG.
+	'''
 
 	def __init__(self, fst_yr, lst_yr, fst_cm, lst_cm, fst_dk, lst_dk, places_num):
 
@@ -21,6 +26,11 @@ class smpgTools():
 
 #============================================================
 	def general_table(self, raw_data):
+
+		'''
+		The main entry table. Classifies rainfall data by year
+		using dekadals. :raw_data
+		'''
 
 		main_table = []
 		current_yr_table = []
