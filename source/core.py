@@ -1,5 +1,5 @@
 import numpy as np
-from tools import read, spawn_deks
+from utils import read, spawn_deks
 import matplotlib.pyplot as plt
 
 
