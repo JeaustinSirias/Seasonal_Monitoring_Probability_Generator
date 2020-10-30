@@ -116,6 +116,21 @@ def dek_list():
 
 	return DEK
 #============================================================
+def statistics(vector):
+	'''
+	Computes required SMPG statistics: LTM, stDev, 
+	33th/67th percentiles, 120-80% varation, and 
+	LTM+/-StDev
+	'''
+	stats = []
+	x, y, z = np.array(vector)
+
+	for place in range(x):
+		location = np.array(vector[place]).transpose()
+		LTM = [np.mean(location[dek]) for dek in range(y)]
+
+
+	pass
 #============================================================
 #============================================================
 #============================================================
