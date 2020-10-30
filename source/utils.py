@@ -1,7 +1,3 @@
-'''
-Auxiliar functions to 
-help smpgTools class
-'''
 import numpy as np
 import pandas as pd
 from scipy.stats import rankdata
@@ -56,12 +52,69 @@ def spawn_deks():
 		   '3-Nov': 32, '1-Dec': 33,'2-Dec': 34, '3-Dec': 35}
 	return DEK
 #============================================================
-def sum_dekad_error(season_arr):
-	pass
+def SDE(past_table, present_table):
+
+	x, y = np.array(present_table).shape
+	dim1, dim2, dim3 = np.array(past_table).shape
+	SDE = []
+	rank = []
+
+	# Compute diff by dekad, squared. 
+	for place in range(x):
+		a = present_table[place] # present year
+		yr = []
+		for year in range(dim2):
+			b = past_table[place][year] # past years
+			sde = [pow(a[i]-b[i], 2) for i in range(y)]
+			sde = sum(sde)
+			yr.append(sde)
+
+		SDE.append(rankdata(yr, method='ordinal'))
+
+	return SDE
 #============================================================
-def sum_error_square(season_arr):
-	pass
+def SSE(past_accums, present_accums):
+
+	'''
+	'''
+	# Get the difference squared 
+	x, y = np.array(present_accums).shape
+	dim1, dim2, dim3 = np.array(past_accums).shape
+	SSE = []
+	rank = []
+
+	for place in range(x):
+		row = []
+		VAL = present_accums[place][-1]
+		for year in range(dim2):
+			DIFF = past_accums[place][year][y-1] - VAL
+			sse = pow(DIFF, 2)
+			row.append(sse)
+
+		SSE.append(row)
+
+	# Rank data
+	for place in range(x):
+		rnk = rankdata(SSE[place], method='ordinal')
+		rank.append(rnk)
+
+	return rank
 #============================================================
+def dek_list():
+	DEK = [
+
+		   '1-Jan', '2-Jan', '3-Jan', '1-Feb', '2-Feb', 
+		   '3-Feb', '1-Mar', '2-Mar', '3-Mar', '1-Apr', 
+		   '2-Apr', '3-Apr', '1-May', '2-May', '3-May', 
+		   '1-Jun', '2-Jun', '3-Jun', '1-Jul', '2-Jul', 
+		   '3-Jul', '1-Aug', '2-Aug', '3-Aug', '1-Sep', 
+		   '2-Sep', '3-Sep', '1-Oct', '2-Oct', '3-Oct', 
+		   '1-Nov', '2-Nov', '3-Nov', '1-Dec', '2-Dec', 
+		   '3-Dec'
+
+		   ]
+
+	return DEK
 #============================================================
 #============================================================
 #============================================================

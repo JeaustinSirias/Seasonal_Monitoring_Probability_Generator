@@ -1,15 +1,15 @@
 import numpy as np
-from utils import read, spawn_deks
-import matplotlib.pyplot as plt
+import utils 
+from scipy.stats import rankdata
+from collections import defaultdict
+
 
 
 class smpgTools():
-	
 	'''
 	A class that contains all the necessary methods to
 	build the SMPG.
 	'''
-
 	def __init__(self, fst_yr, lst_yr, fst_cm, lst_cm, fst_dk, lst_dk, places_num):
 
 		self.fst_yr = fst_yr
@@ -28,8 +28,12 @@ class smpgTools():
 	def general_table(self, raw_data):
 
 		'''
-		The main entry table. Classifies rainfall data by year
-		using dekadals. :raw_data
+		The main entry table. Classifies rainfall data by 
+		location and sets up a 2D grid map as [dekad, year]
+		
+		:param raw_data: Contains the raw CSV data format
+		:return main_table: The main SMPG table
+		:return current_yr_table: Current year array
 		'''
 
 		main_table = []
@@ -46,6 +50,12 @@ class smpgTools():
 #============================================================
 	def lt_average(self, main_table):
 
+		'''
+		Computes long-term average rows for each of the
+		36 dekadals in every location detected in the 
+		input dataset
+		:param main_table: The SMPG general table 
+		'''
 		lta_vect = []
 		for i in range(self.places_num):
 			lta = []
@@ -61,9 +71,19 @@ class smpgTools():
 #============================================================
 	def seasonal_table(self, main_table, current_yr_table):
 
+		'''
+		Computes the general table and trims the chosen 
+		season by the user, but also it refills each 
+		missing dekad with the next elements in []
+
+		:param main_table: The SMPG general table
+		:param current_yr_table:
+		'''
+
 		boolean_table = []
 		seasonal_table = []
-		DICT = spawn_deks()
+		present_table  = []
+		DICT = utils.spawn_deks()
 		START = DICT[self.fst_dk]
 		END = DICT[self.lst_dk]
 		LAST = self.yrs_len[-1]
@@ -80,6 +100,8 @@ class smpgTools():
 		for i in range(self.places_num):
 			loc = []
 			loc_s = []
+			current_ssn = current_yr_table[i][START:]
+			present_table.append(current_ssn)
 			for j in self.yrs_len:
 				if j < LAST:
 					yr = main_table[i][j][START:] 
@@ -105,9 +127,20 @@ class smpgTools():
 			boolean_table.append(loc)
 			seasonal_table.append(loc_s)
 
-		return seasonal_table, boolean_table
+		return seasonal_table, boolean_table, present_table
 #============================================================
 	def seasonal_accummulations(self, seasonal_table, curr):
+
+		'''
+		Computes the accummulations over each year column
+		only in the chosen season. It does it for all past
+		years an for the current year (until it's possible)
+
+		:param seasonal_table:
+		:param curr:
+		:return seasonal_accummulations:
+		:return current_accummulations:
+		'''
 
 		seasonal_accummulations = []
 		current_accummulations = []
@@ -137,25 +170,45 @@ class smpgTools():
 
 		return seasonal_accummulations, current_accummulations
 #============================================================
+	def compute_analogs(self, SSE_ranking, SDE_ranking):
 
+		# Ranking adittions
+		ranking = []
+		years = range(self.fst_yr, self.lst_yr)
+		for place in range(self.places_num):
+
+			R1 = SSE_ranking[place]
+			R2 = SDE_ranking[place]
+			rank = [R1[i] + R2[i] for i in self.yrs_len]
+			rank = rankdata(rank, method='dense')
+			dictionary = defaultdict(list)
+			carrier = [(i, rank[i]) for i in self.yrs_len]
+
+			for year, key in carrier:
+				dictionary[key].append(year)
+
+			ranking.append(dict(dictionary))
+
+		return ranking
 #============================================================
 #============================================================
 	def generate_report(self):
 		pass
 #============================================================
 
-fst_yr, lst_yr, ID, raw_data = read('ejemplo1.csv')
+fst_yr, lst_yr, ID, raw_data = utils.read('/home/jussc_/Desktop/Seasonal_Monitoring_Probability_Generator/data/ejemplo1.csv')
 
 places_num = len(ID)
-SMPG = smpgTools(fst_yr, lst_yr, 1981, 2010, '1-Feb', '3-May', places_num)
+SMPG = smpgTools(fst_yr, lst_yr, 1985, 2010, '1-Feb', '3-May', places_num)
 a, b = SMPG.general_table(raw_data)
 lta = SMPG.lt_average(a)
-s_table, b_table = SMPG.seasonal_table(a, b)
-season_acms, current_acms = SMPG.seasonal_accummulations(s_table, b)
+s_table, b_table, p_table = SMPG.seasonal_table(a, b)
+season_acms, current_acms = SMPG.seasonal_accummulations(s_table, p_table)
+R1 = utils.SDE(s_table, p_table)
+R2 = utils.SSE(season_acms, current_acms)
+ranking = SMPG.compute_analogs(R1, R2)
 
-print(current_acms)
-
-
+print(ranking)
 
 
 
