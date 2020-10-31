@@ -1,14 +1,17 @@
-import numpy as np
-import pandas as pd
+import numpy 
+import pandas
 from scipy.stats import rankdata
 #============================================================
 def year_format(number):
 	return int(number // 100)
 #============================================================
+def Rankdata(**kwargs):
+	pass
+#============================================================
 def read(csv_file):
 
 	# Read raw dataset as Pandas dataframe
-	data = pd.read_csv(csv_file, header=None)
+	data = pandas.read_csv(csv_file, header=None)
 
 	# Choose first year
 	fst_yr = year_format(data.loc[0][1])
@@ -54,8 +57,8 @@ def spawn_deks():
 #============================================================
 def SDE(past_table, present_table):
 
-	x, y = np.array(present_table).shape
-	dim1, dim2, dim3 = np.array(past_table).shape
+	x, y = numpy.array(present_table).shape
+	dim1, dim2, dim3 = numpy.array(past_table).shape
 	SDE = []
 	rank = []
 
@@ -78,8 +81,8 @@ def SSE(past_accums, present_accums):
 	'''
 	'''
 	# Get the difference squared 
-	x, y = np.array(present_accums).shape
-	dim1, dim2, dim3 = np.array(past_accums).shape
+	x, y = numpy.array(present_accums).shape
+	dim1, dim2, dim3 = numpy.array(past_accums).shape
 	SSE = []
 	rank = []
 
@@ -116,24 +119,59 @@ def dek_list():
 
 	return DEK
 #============================================================
-def statistics(vector):
+def stats(vector):
 	'''
 	Computes required SMPG statistics: LTM, stDev, 
 	33th/67th percentiles, 120-80% varation, and 
-	LTM+/-StDev
+	LTM+/-StDev, in that order
+
+	:param vector: Thentry 3D seasonal/ensemble array
+	:return: 2D statistics vector
 	'''
 	stats = []
-	x, y, z = np.array(vector)
+	x, y, z = numpy.array(vector).shape
 
 	for place in range(x):
-		location = np.array(vector[place]).transpose()
-		LTM = [np.mean(location[dek]) for dek in range(y)]
+		location = numpy.array(vector[place]).transpose()
+		ltm = [numpy.mean(location[i]) for i in range(z)]
+		lst_row = location[-1]
+		avg = ltm[-1]
 
+		#stats
+		std = round(numpy.std(lst_row))
+		thrd = round(numpy.percentile(lst_row, 33))
+		sxth = round(numpy.percentile(lst_row, 67))
+		mu = round(avg + std)
+		sgm = round(avg - std)
+		h = [i * 1.2 for i in ltm]
+		l = [i * 0.8 for i in ltm]
+		stats.append([ltm, std, thrd, sxth, mu, sgm, h, l])
 
+	return stats
+#============================================================
+def export_analogs(ID, data):
+
+	'''
+	A function that exports a CSV file with the first
+	top 10 analog years for each location.
+
+	:param ID: A vector with the name of each place.
+	:param data: A vector with a dict per each place
+
+	'''
+	size = range(len(ID))
+	data = [list(data[i].values())[:10] for i in size]
+	cols = ['analog_{}'.format(i+1) for i in range(10)]
+
+	df = pandas.DataFrame(data=data, index=ID, columns=cols)
+	print(df)
+
+#============================================================
+def export_summary():
 	pass
 #============================================================
-#============================================================
-#============================================================
+def export_stats():
+	pass
 #============================================================
 #============================================================
 #============================================================

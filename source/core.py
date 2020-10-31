@@ -1,4 +1,4 @@
-import numpy as np
+import numpy 
 import utils 
 from scipy.stats import rankdata
 from collections import defaultdict
@@ -49,7 +49,7 @@ class smpgTools():
 
 		for i in range(self.places_num):
 			past = raw_data[i][0:self.dek_num]
-			past = np.split(np.array(past), len(self.yrs))
+			past = numpy.split(numpy.array(past), len(self.yrs))
 			current = raw_data[i][self.dek_num:]
 			main_table.append(past)
 			current_yr_table.append(current)
@@ -67,10 +67,10 @@ class smpgTools():
 		lta_vect = []
 		for i in range(self.places_num):
 			lta = []
-			place = np.array(main_table[i]).transpose()
+			place = numpy.array(main_table[i]).transpose()
 			for j in range(36):
 				row = place[j][0:len(self.clim_wind)]
-				row = np.mean(row)
+				row = numpy.mean(row)
 				lta.append(row)
 
 			lta_vect.append(lta)
@@ -114,19 +114,19 @@ class smpgTools():
 				if j < LAST:
 					yr = main_table[i][j][START:] 
 					add = main_table[i][j+1][:START]
-					yr = np.append(yr, add)
+					yr = numpy.append(yr, add)
 					ssn = yr[:SEASON]
 					loc.append(yr)
 					loc_s.append(ssn)
 				else:
 					yr = main_table[i][j][START:] 
 					add = current_yr_table[i][:START]
-					yr = np.append(yr, add)
+					yr = numpy.append(yr, add)
 
 					if len(yr) < 36:
 						OFFSET = 36 - len(yr)
-						arr = np.array([0] * OFFSET)
-						yr = np.append(yr, arr)
+						arr = numpy.array([0] * OFFSET)
+						yr = numpy.append(yr, arr)
 
 					ssn = yr[:SEASON]
 					loc.append(yr)
@@ -154,7 +154,7 @@ class smpgTools():
 		seasonal_accummulations = []
 		current_accummulations = []
 		season = range(len(seasonal_table[0][0]))
-		places, deks = np.array(curr).shape
+		places, deks = numpy.array(curr).shape
 
 		# PAST YEARS ACCUMMULATIONS
 		for place in range(self.places_num):
@@ -242,7 +242,9 @@ class smpgTools():
 			v = [accum_dict[place][year] for year in List]
 			vector.append(v)
 
-		return vector
+		stats = utils.stats(vector)
+
+		return vector, stats
 #=====================================================================
 	def climatological_accumulation(self, accum_dict):
 		'''
@@ -254,25 +256,44 @@ class smpgTools():
 			v = [accum_dict[place][year] for year in self.clim_wind]
 			vector.append(v)
 
-		return vector
+		stats = utils.stats(vector)
+
+		return vector, stats
 #=====================================================================
-	def analog_ensemble(self):
+	def analog_ensemble(self, analogs, ensemble):
 		'''
 		Computes the ensemble, but considering only 
 		the analog years amount chosen by the user.
 		'''
-		pass
-#=====================================================================
-	def climatological_ensemble(self):
-		pass
-#=====================================================================
-#=====================================================================
-#=====================================================================
+		vector = []
+		for place in range(self.places_num):
+			List = analogs[place]
+			v = [ensemble[place][year] for year in List]
+			vector.append(v)
 
-fst_yr, lst_yr, ID, raw_data = utils.read('/home/jussc_/Desktop/Seasonal_Monitoring_Probability_Generator/data/ejemplo1.csv')
+		stats = utils.stats(vector)
+
+		return vector, stats
+#=====================================================================
+	def climatological_ensemble(self, ensemble):
+
+		vector = []
+		for place in range(self.places_num):
+			v = [ensemble[place][year] for year in self.clim_wind]
+			vector.append(v)
+
+		stats = utils.stats(vector)
+
+		return vector, stats
+#=====================================================================
+#=====================================================================
+	def report(self):
+		return
+#=====================================================================
+fst_yr, lst_yr, ID, raw_data = utils.read('/home/jussc_/Desktop/Seasonal_Monitoring_Probability_Generator/data/ejemplo2.csv')
 
 places_num = len(ID)
-SMPG = smpgTools(fst_yr, lst_yr, 1981, 2010, '1-Feb', '3-May', places_num, 5)
+SMPG = smpgTools(fst_yr, lst_yr, 1985, 2010, '1-Feb', '3-May', places_num, 25)
 a, b = SMPG.general_table(raw_data)
 lta = SMPG.LTM(a)
 s_table, b_table, p_table = SMPG.seasonal_table(a, b)
@@ -281,9 +302,10 @@ R1 = utils.SDE(s_table, p_table)
 R2 = utils.SSE(season_acms, current_acms)
 ranking, analogs = SMPG.compute_analogs(R1, R2)
 ensemble = SMPG.seasonal_ensemble(s_table, current_acms)
-vector = SMPG.analog_accumulation(analogs, Dict)
-vector2 = SMPG.climatological_accumulation(Dict)
+vector, stats = SMPG.analog_accumulation(analogs, Dict)
+vector2, stats2 = SMPG.climatological_accumulation(Dict)
 
-a = np.array(vector2[0])
-print(a.transpose())
+angs = utils.export_analogs(ID, ranking)
+stats = utils.stats(vector)
+#print(stats)
 
