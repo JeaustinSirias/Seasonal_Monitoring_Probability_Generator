@@ -8,7 +8,7 @@ def year_format(number):
 def Rankdata(**kwargs):
 	pass
 #============================================================
-def read(csv_file):
+def read(csv_file):``
 
 	# Read raw dataset as Pandas dataframe
 	data = pandas.read_csv(csv_file, header=None)
@@ -42,17 +42,20 @@ def read(csv_file):
 #============================================================
 def spawn_deks():
 	'''
-	Returns a standard dictionary of dekads
+	:return: a standard dictionary of dekads
 	'''
-	DEK = {'1-Jan': 0, '2-Jan': 1, '3-Jan': 2, '1-Feb': 3, 
-		   '2-Feb': 4, '3-Feb': 5, '1-Mar': 6, '2-Mar': 7, 
-		   '3-Mar': 0, '1-Apr': 9, '2-Apr': 10, '3-Apr': 11, 
+	DEK = {
+		   '1-Jan':  0, '2-Jan':  1, '3-Jan': 2, '1-Feb':  3, 
+		   '2-Feb':  4, '3-Feb':  5, '1-Mar': 6, '2-Mar':  7, 
+		   '3-Mar':  0, '1-Apr':  9, '2-Apr':10, '3-Apr': 11, 
 		   '1-May': 12, '2-May': 13,'3-May': 14, '1-Jun': 15, 
 		   '2-Jun': 16, '3-Jun': 17,'1-Jul': 18, '2-Jul': 19, 
 		   '3-Jul': 20, '1-Aug': 21,'2-Aug': 22, '3-Aug': 23, 
 		   '1-Sep': 24, '2-Sep': 25,'3-Sep': 26, '1-Oct': 27, 
 		   '2-Oct': 28, '3-Oct': 29,'1-Nov': 30, '2-Nov': 31, 
-		   '3-Nov': 32, '1-Dec': 33,'2-Dec': 34, '3-Dec': 35}
+		   '3-Nov': 32, '1-Dec': 33,'2-Dec': 34, '3-Dec': 35
+		   }
+
 	return DEK
 #============================================================
 def SDE(past_table, present_table):
@@ -60,8 +63,6 @@ def SDE(past_table, present_table):
 	x, y = numpy.array(present_table).shape
 	dim1, dim2, dim3 = numpy.array(past_table).shape
 	SDE = []
-	rank = []
-
 	# Compute diff by dekad, squared. 
 	for place in range(x):
 		a = present_table[place] # present year
@@ -77,7 +78,6 @@ def SDE(past_table, present_table):
 	return SDE
 #============================================================
 def SSE(past_accums, present_accums):
-
 	'''
 	'''
 	# Get the difference squared 
@@ -120,8 +120,7 @@ def dek_list():
 	return DEK
 #============================================================
 def stats(vector):
-	'''
-	Computes required SMPG statistics: LTM, stDev, 
+	'''Computes required SMPG statistics: LTM, stDev, 
 	33th/67th percentiles, 120-80% varation, and 
 	LTM+/-StDev, in that order
 
@@ -137,7 +136,7 @@ def stats(vector):
 		lst_row = location[-1]
 		avg = ltm[-1]
 
-		#stats
+		# Computing stats per location
 		std = round(numpy.std(lst_row))
 		thrd = round(numpy.percentile(lst_row, 33))
 		sxth = round(numpy.percentile(lst_row, 67))
@@ -146,28 +145,33 @@ def stats(vector):
 		h = [i * 1.2 for i in ltm]
 		l = [i * 0.8 for i in ltm]
 		stats.append([ltm, std, thrd, sxth, mu, sgm, h, l])
-
+		
 	return stats
 #============================================================
 def export_analogs(ID, data):
-
-	'''
-	A function that exports a CSV file with the first
+	'''A function that exports a CSV file with the first
 	top 10 analog years for each location.
 
 	:param ID: A vector with the name of each place.
 	:param data: A vector with a dict per each place
-
 	'''
+
+	# Sorting dictionary by key ascending key order
 	size = range(len(ID))
+	data = [dict(sorted(data[i].items())) for i in size]
+
+	# Delimiting columns and the amount of analogs
 	data = [list(data[i].values())[:10] for i in size]
 	cols = ['analog_{}'.format(i+1) for i in range(10)]
 
+	# Building dataframe
 	df = pandas.DataFrame(data=data, index=ID, columns=cols)
+	#df.to_csv('{dir}/analogs.csv'.format(dir = dirName))
+
 	print(df)
 
 #============================================================
-def export_summary():
+def export_summary(ID, data):
 	pass
 #============================================================
 def export_stats():

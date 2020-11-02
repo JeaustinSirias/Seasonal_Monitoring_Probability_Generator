@@ -2,10 +2,11 @@ import numpy
 import utils 
 from scipy.stats import rankdata
 from collections import defaultdict
+import matplotlib.pyplot as plt
+from matplotlib.gridspec import GridSpec
 
-class smpgTools():
-	'''
-	A class that contains all the necessary methods to
+class smpgTool():
+	'''A class that contains all the necessary methods to
 	build the SMPG.
 	'''
 	def __init__(
@@ -34,9 +35,7 @@ class smpgTools():
 		self.clim_wind = range(fst_cm, lst_cm+1)
 #=====================================================================
 	def general_table(self, raw_data):
-
-		'''
-		The main entry table. Classifies rainfall data by 
+		'''The main entry table. Classifies rainfall data by 
 		location and sets up a 2D grid map as [dekad, year]
 		
 		:param raw_data: Contains the raw CSV data format
@@ -57,13 +56,12 @@ class smpgTools():
 		return main_table, current_yr_table
 #=====================================================================
 	def LTM(self, main_table):
-
-		'''
-		Computes long-term average rows for each of the
+		'''Computes long-term average rows for each of the
 		36 dekadals in every location detected in the 
 		input dataset
 		:param main_table: The SMPG general table 
 		'''
+
 		lta_vect = []
 		for i in range(self.places_num):
 			lta = []
@@ -78,9 +76,7 @@ class smpgTools():
 		return lta_vect
 #=====================================================================
 	def seasonal_table(self, main_table, current_yr_table):
-
-		'''
-		Computes the general table and trims the chosen 
+		'''Computes the general table and trims the chosen 
 		season by the user, but also it refills each 
 		missing dekad with the next elements in []
 
@@ -138,9 +134,7 @@ class smpgTools():
 		return seasonal_table, boolean_table, present_table
 #=====================================================================
 	def seasonal_accummulations(self, seasonal_table, curr):
-
-		'''
-		Computes the accummulations over each year column
+		'''Computes the accummulations over each year column
 		only in the chosen season. It does it for all past
 		years an for the current year (until it's possible)
 
@@ -150,6 +144,7 @@ class smpgTools():
 		:return current_accummulations:
 		:return Dict:
 		'''
+
 		Dict = []
 		seasonal_accummulations = []
 		current_accummulations = []
@@ -236,6 +231,7 @@ class smpgTools():
 		Computes seasonal accumulations, but considering
 		only the analog years amount chosen by the user.
 		'''
+		
 		vector = []
 		for place in range(self.places_num):
 			List = analogs[place]
@@ -290,10 +286,10 @@ class smpgTools():
 	def report(self):
 		return
 #=====================================================================
-fst_yr, lst_yr, ID, raw_data = utils.read('/home/jussc_/Desktop/Seasonal_Monitoring_Probability_Generator/data/ejemplo2.csv')
+fst_yr, lst_yr, ID, raw_data = utils.read('/home/jussc_/Desktop/Seasonal_Monitoring_Probability_Generator/data/ejemplo1.csv')
 
 places_num = len(ID)
-SMPG = smpgTools(fst_yr, lst_yr, 1985, 2010, '1-Feb', '3-May', places_num, 25)
+SMPG = smpgTool(fst_yr, lst_yr, 1981, 2010, '1-Feb', '3-May', places_num, 39)
 a, b = SMPG.general_table(raw_data)
 lta = SMPG.LTM(a)
 s_table, b_table, p_table = SMPG.seasonal_table(a, b)
