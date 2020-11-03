@@ -30,7 +30,6 @@ class App():
         self.dataset = None
 
         '''
-        self.analogs_lst = np.arange(1, 40, 1)
         self.radio_button = IntVar(self.frame)
         '''
 
@@ -122,16 +121,49 @@ class App():
         tk.messagebox.showinfo('Loaded', 'Input dataset goes from {} to {}'.format(fst_yr, lst_yr))
     #=====================================================================================================
     def Run(self, fst_cm, lst_cm, fst_dk, lst_dk, analogs_num, rank):
+
         # Setting up conditions to run & error messages
         if self.dataset == None:
             tk.messagebox.showerror('No dataset loaded', 'You must input a dataset first')
             return
+
+        if fst_cm == '' or lst_cm == '':
+            tk.messagebox.showerror('Error', 'There are missing values in your setup')
+            return 
+
+        if analogs_num == '' or rank == '':
+            tk.messagebox.showerror('Error', 'There are missing values in your setup')
+            return 
 
         # Temporary variables. They wont be here forever
         fst_cm = int(fst_cm)
         lst_cm = int(lst_cm)
         analogs_num = int(analogs_num)
         rank = int(rank)
+
+        # Starting up SMPG enviroment
+        fst_yr, lst_yr, IDs, raw_data = self.dataset
+
+        if lst_cm < fst_cm:
+            tk.messagebox.showerror('Error', 'Initial year can\'t be less than {} for this dataset'.format(fst_yr))
+            return 
+
+        if lst_cm > lst_yr:
+            tk.messagebox.showerror('Error', 'End year cannot be greater than {} for this dataset'.format(lst_yr))
+            return 
+
+        if fst_cm >= lst_cm:
+            tk.messagebox.showerror('Error', 'End year must be greater than initial year' )
+            return 
+
+        if analogs_num  <= 1:
+            tk.messagebox.showerror('Error', 'More than one analog year must be chosen')
+            return 
+
+        if rank > 4:
+            tk.messagebox.showerror('Error', 'Max. analog years rank to show is 4 and you chose {}'. format(rank))
+            return 
+
 
         # Starting up SMPG enviroment
         fst_yr, lst_yr, IDs, raw_data = self.dataset
