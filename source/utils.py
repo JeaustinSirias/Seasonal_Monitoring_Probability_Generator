@@ -2,14 +2,16 @@ import numpy
 import pandas
 from scipy.stats import rankdata
 #============================================================
+'''
 def year_format(number):
 	return int(number // 100)
+'''
+year_format = lambda number: int(number // 100)
 #============================================================
 def Rankdata(**kwargs):
 	pass
 #============================================================
-def read(csv_file):``
-
+def read(csv_file):
 	# Read raw dataset as Pandas dataframe
 	data = pandas.read_csv(csv_file, header=None)
 
@@ -23,7 +25,6 @@ def read(csv_file):``
 	if data.loc[0].iloc[-1] == 'scenario':
 		lst_yr = year_format(data.loc[0].iloc[-2])
 		scenarios = list(data.iloc[1:,-1:])
-		
 		raw_data = []
 		for i in range(len(ID)):
 			location = list(data.loc[i+1][1:-1])
@@ -93,7 +94,6 @@ def SSE(past_accums, present_accums):
 			DIFF = past_accums[place][year][y-1] - VAL
 			sse = pow(DIFF, 2)
 			row.append(sse)
-
 		SSE.append(row)
 
 	# Rank data
@@ -128,6 +128,7 @@ def stats(vector):
 	:return: 2D statistics vector
 	'''
 	stats = []
+	percs = []
 	x, y, z = numpy.array(vector).shape
 
 	for place in range(x):
@@ -144,9 +145,41 @@ def stats(vector):
 		sgm = round(avg - std)
 		h = [i * 1.2 for i in ltm]
 		l = [i * 0.8 for i in ltm]
-		stats.append([ltm, std, thrd, sxth, mu, sgm, h, l])
+		stats.append((ltm, std, thrd, sxth, mu, sgm, h, l))
+		percs.append((sxth, thrd))
 		
-	return stats
+	return stats, percs
+#============================================================
+def outlook(percs, ensemble):
+	'''Computes the probability at the en of the season
+	by clasifiyng how many past years are above 67th perc,
+	between 67th and 33rd percs and below 33rd perc from
+	seasonal climatological stats.
+
+	:param percs: array of 33rd and 67th percs tuples
+	:param ensemble: climatological or analog ensemble arr
+	:return outlook:
+	'''
+	outlook = []
+	#x, y, z = numpy.array(ensemble).shape
+	x = len(percs)
+	y = len(percs[0])
+	prob = lambda value: round((value / y) * 100)
+	for place in range(x):
+		row = numpy.array(ensemble[place]).transpose()[-1]
+		HI, LO = percs[place]
+		A, N, B = 0, 0, 0
+		for yr in range(y):
+			VALUE = row[yr]
+			if VALUE > HI: 
+				A += 1
+			if VALUE < LO: 
+				B += 1
+			if HI >= VALUE >= LO:
+				N += 1
+		outlook.append((prob(A), prob(N), prob(B)))
+
+	return outlook
 #============================================================
 def export_analogs(ID, data):
 	'''A function that exports a CSV file with the first
@@ -169,12 +202,33 @@ def export_analogs(ID, data):
 	#df.to_csv('{dir}/analogs.csv'.format(dir = dirName))
 
 	print(df)
-
 #============================================================
 def export_summary(ID, data):
+	cols = [
+
+		    'Seasonal Avg', 'Seasonal StDev', 'Seasonal Median',  
+			'Seasonal 33rd perct', 'Seasonal 67th perct', 
+			'Total at current Dek', 'LTA Value', 'LTA Percentage', 
+			'Ensemble Avg', 'Ensemble StDev', 'Ensemble Median', 
+			'E_33rd. Perc.', 'E_67th. Perc', 'E_LTA Value', 
+			'E_LTA Perc', 'Outlook: Above', 'Outlook: Normal', 
+			'Outlook: Below'
+
+			]
+		
 	pass
 #============================================================
 def export_stats():
+	cols = [
+		    'pctofavgatdek', 'pctofavgatEOS', 
+	        'Above', 'Normal', 'Below'
+		   ]
+
+
+
+
+
+
 	pass
 #============================================================
 #============================================================
