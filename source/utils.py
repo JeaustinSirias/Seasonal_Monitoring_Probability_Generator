@@ -2,14 +2,36 @@ import numpy
 import pandas
 from scipy.stats import rankdata
 #============================================================
-'''
-def year_format(number):
-	return int(number // 100)
-'''
 year_format = lambda number: int(number // 100)
 #============================================================
-def Rankdata(**kwargs):
-	pass
+def season(fst_dek, lst_dek, deks=False):
+	'''Computes the seasonal window params to 
+	simplify coding in the core module.
+
+	:param fst_dek: first dekad in the season
+	:param lst_dek: last dekad in the season
+	:param getdeks: If false, only returns season len
+	:return: season length, season dekads
+	'''
+	lib = spawn_deks()
+	dekads = dek_list()
+	start = lib[fst_dek]
+	end = lib[lst_dek] 
+
+	# Conditioning
+	if start < end:
+		season = len(range(start, end+1))
+		dekads = dekads[start:end+1]
+	else:
+		a = len(range(start, 36))
+		b = len(range(0, end+1))	
+		season = a + b
+		dekads = dekads[start:] + dekads[:end+1]
+	
+	if deks == False:
+		return season, start
+	else:
+		return season, dekads
 #============================================================
 def read(csv_file):
 	# Read raw dataset as Pandas dataframe
@@ -119,12 +141,13 @@ def dek_list():
 
 	return DEK
 #============================================================
-def stats(vector):
+def stats(vector, extrapercs=False):
 	'''Computes required SMPG statistics: LTM, stDev, 
 	33th/67th percentiles, 120-80% varation, and 
 	LTM+/-StDev, in that order
 
 	:param vector: Thentry 3D seasonal/ensemble array
+	:param extrapercs: If false just retuns stats
 	:return: 2D statistics vector
 	'''
 	stats = []
@@ -145,10 +168,13 @@ def stats(vector):
 		sgm = round(avg - std)
 		h = [i * 1.2 for i in ltm]
 		l = [i * 0.8 for i in ltm]
-		stats.append((ltm, std, thrd, sxth, mu, sgm, h, l))
+		stats.append([ltm, std, thrd, sxth, mu, sgm, h, l])
 		percs.append((sxth, thrd))
-		
-	return stats, percs
+
+	if extrapercs == False:	
+		return stats
+	else:
+		return stats, percs
 #============================================================
 def outlook(percs, ensemble):
 	'''Computes the probability at the en of the season
