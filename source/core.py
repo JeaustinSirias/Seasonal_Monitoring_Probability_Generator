@@ -283,7 +283,7 @@ class smpgTool():
 		:param ests: Analog ensemble statistics
 		''' 
 		# Config
-		fig = plt.figure(num=num, tight_layout=True, figsize=(10, 6))
+		fig = plt.figure(num=num, tight_layout=True, figsize=(16, 8))
 		gs = GridSpec(2, 3)
 
 		# Gridspecs
@@ -308,13 +308,21 @@ class smpgTool():
 		AX2.set_ylabel("Accumulated Rainfall [mm]")
 		AX3.set_ylabel("Accumulated Rainfall [mm]")
 
+		# Grids
+		AX1.grid()
+		AX2.grid()
+		AX3.grid()
+
 		# Variables
+		col = 'Analog years', 'Climatology'
 		ltm, std, thrd, sxth, mu, sgm, h, l = asts
 		eltm, estd, ethrd, esxth, emu, esgm, eh, el = ests
 		sx_axis = range(ssn)
 		sx_end = sx_axis[-1]
 		cx_axis = range(len(cacms))
 		ac_axis = range(len(actyr))
+		empty = [[None]]
+		k = 0
 
 		# x-label ticks
 		AX1.set_xticks(self.dlen)
@@ -328,7 +336,6 @@ class smpgTool():
 		AX1.plot(self.dlen, LTA, color='r', lw=5, label='LTA: {}-{}'.format(self.fst_cm, self.lst_cm))
 		AX1.bar(ac_axis, actyr, color='b', label='Current year: {}'.format(self.lst_yr))
 		AX1.legend()
-		AX1.grid()
 
 		# AX2 plot
 		for analogs in range(self.an_num): AX2.plot(sx_axis, acms[analogs])
@@ -339,8 +346,7 @@ class smpgTool():
 		AX2.plot(sx_end, mu, marker='^', markersize=7, color='green', label='Avg+Std')
 		AX2.plot(sx_end, sgm, marker='^', markersize=7, color='green', label='Avg-Std')
 		AX2.plot(cx_axis, cacms, color='b', lw=5, label=self.lst_yr)
-		AX2.grid()
-
+	
 		# AX3 plot
 		for analogs in range(self.an_num): AX3.plot(sx_axis, ensb[analogs])
 		AX3.plot(sx_axis, eltm, '--', color='k', lw=2, label='ELTM')
@@ -355,8 +361,47 @@ class smpgTool():
 		AX3.plot(sx_end, esxth, marker='s', markersize=7, color='blue', label='E_67th pct')
 		AX3.plot(sx_end, emu, marker='^', markersize=7, color='orange', label='E_Avg+Std')
 		AX3.plot(sx_end, esgm, marker='^', markersize=7, color='orange', label='E_Avg-Std')
-		AX3.grid()
 
+		# Legends
+		AX1.legend()
+		AX2.legend(loc='upper center', bbox_to_anchor=(0.5, -0.35), shadow=True, ncol=5, fontsize=7.5)
+		AX3.legend(loc='upper center', bbox_to_anchor=(0.5, -0.35), shadow=True, ncol=5, fontsize=7.5)
+
+		# AX4 -Tables - Headers
+		AX4.axis('off')
+		AX4.table(cellText=empty, colLabels=['Climatological Analysis'], bbox=[0.2, 0.68-k, 0.7, 0.12 ])
+		AX4.table(cellText=empty, colLabels=['Assessment at current dekad'], bbox=[0.2, 0.46-k, 0.7, 0.12 ])
+		AX4.table(cellText=empty, colLabels=['Projection to the end of the season'], bbox=[0.2, 0.24-k, 0.7, 0.12])
+		AX4.table(cellText=empty, colLabels=['Probability at the end of season'], bbox=[0.2, -0.13-k, 0.7, 0.12 ])
+
+		# Analog years table
+		label = 'Top 1', 'Top 2', 'Top 3'
+		title = ['Closest Analog Years']
+		d = [1], [2], [3]
+		box = [0.1, 0.82-k, 0.8, 0.18]
+		AX4.table(rowLabels=label, colLabels=title, cellText=d, cellLoc='center', bbox=box)
+
+		# Climatology table
+		label = 'Average', 'Deviation', 'Median'
+		data = [None]*2, [None]*2, [None]*2
+		AX4.table(rowLabels=label, colLabels=col, cellText=data, bbox=[0.2, 0.60-k, 0.7, 0.15])
+
+		# Assessments table
+		label = 'Total', 'LTA Value', 'LTA PCT'
+		data = [None]*2, [None]*2, [None]*2
+		AX4.table(rowLabels=label, colLabels=col, cellText=data, bbox=[0.2, 0.38-k, 0.7, 0.15])
+
+		# Projection table
+		label = 'Average', 'Deviation', 'Median', '33rd. PCTL', '67th. PCTL', 'LTA Value', 'Ending LTA'
+		data = [None]*2, [None]*2, [None]*2, [None]*2, [None]*2, [None]*2, [None]*2
+		AX4.table(rowLabels=label, colLabels=col, cellText=data, bbox=[0.2, 0.01-k, 0.7, 0.3])
+
+		# Outlook table
+		label = 'Above normal', 'Normal', 'Below normal'
+		data = [None]*2, [None]*2, [None]*2
+		AX4.table(rowLabels=label, colLabels=col, cellText=data, bbox=[0.2, -0.21-k, 0.7, 0.15])
+
+		fig.align_labels()
 		plt.show()
 #=====================================================================
 	def reports(self, _iD, _lta, _actyr, _acms, _asts, _cacms, _ensb, _ests):
@@ -382,7 +427,7 @@ class smpgTool():
 fst_yr, lst_yr, ID, raw_data = utils.read('/home/jussc_/Desktop/Seasonal_Monitoring_Probability_Generator/data/ejemplo1.csv')
 
 places_num = len(ID)
-SMPG = smpgTool(fst_yr, lst_yr, 1981, 2010, '1-Feb', '1-Jan', places_num, 39)
+SMPG = smpgTool(fst_yr, lst_yr, 1981, 2010, '3-Apr', '3-Jan', places_num, 15)
 a, b = SMPG.general_table(raw_data)
 lta = SMPG.LTM(a)
 s_table, b_table, p_table = SMPG.seasonal_table(a, b)
