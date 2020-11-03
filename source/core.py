@@ -32,7 +32,9 @@ class smpgTool():
 		self.yrs_len = range(len(self.yrs))
 		self.places_num = places_num
 		self.dek_num = len(self.yrs) * 36
+		self.dlen = range(36) 
 		self.clim_wind = range(fst_cm, lst_cm+1)
+		self.deks = utils.dek_list()
 #=====================================================================
 	def general_table(self, raw_data):
 		'''The main entry table. Classifies rainfall data by 
@@ -193,7 +195,7 @@ class smpgTool():
 					VALUE += ADD[dek]
 					tail.append(VALUE)
 				loc.append(vector + tail)
-			ensemble.append(loc)
+			ensemble.append(dict(zip(self.yrs, loc)))
 
 		return ensemble
 #=====================================================================
@@ -215,7 +217,6 @@ class smpgTool():
 
 			for year, key in carrier:
 				dictionary[key].append(year)
-
 			ranking.append(dict(dictionary))
 
 		# Getting analog years lists
@@ -239,7 +240,6 @@ class smpgTool():
 			vector.append(v)
 
 		stats = utils.stats(vector)
-
 		return vector, stats
 #=====================================================================
 	def climatological_accumulation(self, accum_dict):
@@ -253,7 +253,6 @@ class smpgTool():
 			vector.append(v)
 
 		stats = utils.stats(vector)
-
 		return vector, stats
 #=====================================================================
 	def analog_ensemble(self, analogs, ensemble):
@@ -268,7 +267,6 @@ class smpgTool():
 			vector.append(v)
 
 		stats = utils.stats(vector)
-
 		return vector, stats
 #=====================================================================
 	def climatological_ensemble(self, ensemble):
@@ -279,12 +277,124 @@ class smpgTool():
 			vector.append(v)
 
 		stats = utils.stats(vector)
-
 		return vector, stats
 #=====================================================================
+	def plotter(self, num, iD, LTA, actyr, ssn, acms, asts, cacms, ensb, ests):
+		'''An iterable method designed to output a single 
+		report
+
+		:param num: figure number
+		:param iD: Location/place name
+		:param LTA: Long term avg. array for a location
+		:param actyr: Actual year dekadals rainfall
+		:param ssn: reference, season
+		:param acms: Analog accumulations in a place 
+		:param asts: Seasonal analog statistics
+		:param cacms: Accumulations for current year
+		:param ensb: Analog ensemble in a place
+		:param ests: Analog ensemble statistics
+		''' 
+		# Config
+		fig = plt.figure(num=num, tight_layout=True, figsize=(10, 6))
+		gs = GridSpec(2, 3)
+
+		# Gridspecs
+		AX1 = fig.add_subplot(gs[0, :2])
+		AX2 = fig.add_subplot(gs[1, 0])
+		AX3 = fig.add_subplot(gs[1, 1])
+		AX4 = fig.add_subplot(gs[:, 2])
+
+		# Titles
+		AX1.set_title('Average & current rainfall season: {}'.format(iD))
+		AX2.set_title("Seasonal Accumulations")
+		AX3.set_title("Ensemble")
+		AX4.set_title("Summary Statistics")
+		
+		# x-labels
+		AX1.set_xlabel("Dekads")
+		AX2.set_xlabel("Dekads")
+		AX3.set_xlabel("Dekads")
+
+		# x-label ticks
+		AX1.set_xticks(self.dlen)
+		AX1.set_xticklabels(self.deks, rotation='vertical')
+
+		# y-labels
+		AX1.set_ylabel("Rainfall [mm]")
+		AX2.set_ylabel("Accumulated Rainfall [mm]")
+		AX3.set_ylabel("Accumulated Rainfall [mm]")
+
+		# Variables
+		ltm, std, thrd, sxth, mu, sgm, h, l = asts
+		eltm, estd, ethrd, esxth, emu, esgm, eh, el = ests
+		sx_axis = range(ssn)
+		sx_end = sx_axis[-1]
+		cx_axis = range(len(cacms))
+
+		# AX1 plot
+		AX1.plot(self.dlen, LTA, color='r', lw=5, label='LTA: {}-{}'.format(self.fst_cm, self.lst_cm))
+		AX1.bar(range(13), actyr, color='b', label='Current year: {}'.format(self.lst_yr))
+		AX1.legend()
+
+		# AX2 plot
+		for analogs in range(self.an_num): AX2.plot(sx_axis, acms[analogs])
+		AX2.plot(sx_axis, ltm, color='r', lw=5, label='LTM')
+		AX2.fill_between(sx_axis, h, l, color='lightblue', label='120-80%')
+		AX2.plot(sx_end, thrd, marker='s', markersize=7, color='k', label='33rd pct')
+		AX2.plot(sx_end, sxth, marker='s', markersize=7, color='k', label='67th pct')
+		AX2.plot(sx_end, mu, marker='^', markersize=7, color='green', label='Avg+Std')
+		AX2.plot(sx_end, sgm, marker='^', markersize=7, color='green', label='Avg-Std')
+		AX2.plot(cx_axis, cacms, color='b', lw=5, label=self.lst_yr)
+
+		# AX3 plot
+		for analogs in range(self.an_num): AX3.plot(sx_axis, ensb[analogs])
+		AX3.plot(sx_axis, eltm, '--', color='k', lw=2, label='ELTM')
+		AX3.plot(sx_axis, ltm, color='r', lw=4, label='LTM')
+		AX3.fill_between(sx_axis, h, l, color='lightblue', label='120-80%')
+		AX3.plot(sx_end, thrd, marker='s', markersize=7, color='k', label='33rd pct')
+		AX3.plot(sx_end, sxth, marker='s', markersize=7, color='k', label='67th pct')
+		AX3.plot(sx_end, mu, marker='^', markersize=7, color='green', label='Avg+Std')
+		AX3.plot(sx_end, sgm, marker='^', markersize=7, color='green', label='Avg-Std')
+		AX3.plot(cx_axis, cacms, color='b', lw=4, label=self.lst_yr)
+		AX3.plot(sx_end, ethrd, marker='s', markersize=7, color='blue', label='E_33rd pct')
+		AX3.plot(sx_end, esxth, marker='s', markersize=7, color='blue', label='E_67th pct')
+		AX3.plot(sx_end, emu, marker='^', markersize=7, color='orange', label='E_Avg+Std')
+		AX3.plot(sx_end, esgm, marker='^', markersize=7, color='orange', label='E_Avg-Std')
+
+
+
+
+
+		plt.show()
 #=====================================================================
-	def report(self):
+	def reports(self, _iD, _lta, _actyr, _acms, _asts, _cacms, _ensb, _ests):
+		DICT = utils.spawn_deks()
+		START = DICT[self.fst_dk]
+		END = DICT[self.lst_dk]
+		#LAST = self.yrs_len[-1]
+		SEASON = len(range(START, END))
+		if START < END:
+			SEASON = len(range(START, END+1))
+		else:
+			a = len(range(START, 36))
+			b = len(range(0, END+1))	
+			SEASON = a + b	
+		
+		for place in range(self.places_num):
+			iD = _iD[place]
+			lta = _lta[place]
+			yr = _actyr[place]
+			acms = _acms[place]
+			num = place + 1
+			asts = _asts[place]
+			cacms = _cacms[place]
+			ensb = _ensb[place]
+			ests = _ests[place]
+			self.plotter(num, iD, lta, yr, SEASON, acms, asts, cacms, ensb, ests)
+
+
 		return
+
 #=====================================================================
 fst_yr, lst_yr, ID, raw_data = utils.read('/home/jussc_/Desktop/Seasonal_Monitoring_Probability_Generator/data/ejemplo1.csv')
 
@@ -300,8 +410,26 @@ ranking, analogs = SMPG.compute_analogs(R1, R2)
 ensemble = SMPG.seasonal_ensemble(s_table, current_acms)
 vector, stats = SMPG.analog_accumulation(analogs, Dict)
 vector2, stats2 = SMPG.climatological_accumulation(Dict)
+vector3, stats3 = SMPG.analog_ensemble(analogs, ensemble)
+vector4, stats4 = SMPG.climatological_ensemble(ensemble)
 
-angs = utils.export_analogs(ID, ranking)
+ok = utils.outlook(stats2[1], vector4)
+
+
+#angs = utils.export_analogs(ID, ranking)
+#stats, percs = list(utils.stats(vector))
 stats = utils.stats(vector)
 #print(stats)
+#print(percs)
+
+#print(current_acms)
+report = SMPG.reports(ID, lta, b, vector, stats2[0], current_acms, vector3, stats4[0]) 
+
+'''
+b = b[0]
+lta = lta[0]
+acms = vector[0]
+SMPG.plotter(1, 'Carara', lta, b, 1, 1)
+'''
+
 
