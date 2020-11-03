@@ -85,22 +85,10 @@ class smpgTool():
 		:param main_table: The SMPG general table
 		:param current_yr_table:
 		'''
-
 		boolean_table = []
 		seasonal_table = []
 		present_table  = []
-		DICT = utils.spawn_deks()
-		START = DICT[self.fst_dk]
-		END = DICT[self.lst_dk]
-		LAST = self.yrs_len[-1]
-		SEASON = len(range(START, END))
-
-		if START < END:
-			SEASON = len(range(START, END+1))
-		else:
-			a = len(range(START, 36))
-			b = len(range(0, END+1))	
-			SEASON = a + b	
+		SEASON, START = utils.season(self.fst_dk, self.lst_dk)
 
 		# STEP 1: SEASONAL TABLE:
 		for i in range(self.places_num):
@@ -109,7 +97,7 @@ class smpgTool():
 			current_ssn = current_yr_table[i][START:]
 			present_table.append(current_ssn)
 			for j in self.yrs_len:
-				if j < LAST:
+				if j < self.yrs_len[-1]:
 					yr = main_table[i][j][START:] 
 					add = main_table[i][j+1][:START]
 					yr = numpy.append(yr, add)
@@ -232,7 +220,6 @@ class smpgTool():
 		Computes seasonal accumulations, but considering
 		only the analog years amount chosen by the user.
 		'''
-		
 		vector = []
 		for place in range(self.places_num):
 			List = analogs[place]
@@ -279,10 +266,11 @@ class smpgTool():
 		stats = utils.stats(vector)
 		return vector, stats
 #=====================================================================
-	def plotter(self, num, iD, LTA, actyr, ssn, acms, asts, cacms, ensb, ests):
+	def plotter(self, deks, num, iD, LTA, actyr, ssn, acms, asts, cacms, ensb, ests):
 		'''An iterable method designed to output a single 
 		report
 
+		:param deks: An array with the seasonal dekads
 		:param num: figure number
 		:param iD: Location/place name
 		:param LTA: Long term avg. array for a location
@@ -315,10 +303,6 @@ class smpgTool():
 		AX2.set_xlabel("Dekads")
 		AX3.set_xlabel("Dekads")
 
-		# x-label ticks
-		AX1.set_xticks(self.dlen)
-		AX1.set_xticklabels(self.deks, rotation='vertical')
-
 		# y-labels
 		AX1.set_ylabel("Rainfall [mm]")
 		AX2.set_ylabel("Accumulated Rainfall [mm]")
@@ -330,11 +314,21 @@ class smpgTool():
 		sx_axis = range(ssn)
 		sx_end = sx_axis[-1]
 		cx_axis = range(len(cacms))
+		ac_axis = range(len(actyr))
+
+		# x-label ticks
+		AX1.set_xticks(self.dlen)
+		AX1.set_xticklabels(self.deks, rotation='vertical')
+		AX2.set_xticks(sx_axis)
+		AX2.set_xticklabels(deks, rotation='vertical')
+		AX3.set_xticks(sx_axis)
+		AX3.set_xticklabels(deks, rotation='vertical')
 
 		# AX1 plot
 		AX1.plot(self.dlen, LTA, color='r', lw=5, label='LTA: {}-{}'.format(self.fst_cm, self.lst_cm))
-		AX1.bar(range(13), actyr, color='b', label='Current year: {}'.format(self.lst_yr))
+		AX1.bar(ac_axis, actyr, color='b', label='Current year: {}'.format(self.lst_yr))
 		AX1.legend()
+		AX1.grid()
 
 		# AX2 plot
 		for analogs in range(self.an_num): AX2.plot(sx_axis, acms[analogs])
@@ -345,6 +339,7 @@ class smpgTool():
 		AX2.plot(sx_end, mu, marker='^', markersize=7, color='green', label='Avg+Std')
 		AX2.plot(sx_end, sgm, marker='^', markersize=7, color='green', label='Avg-Std')
 		AX2.plot(cx_axis, cacms, color='b', lw=5, label=self.lst_yr)
+		AX2.grid()
 
 		# AX3 plot
 		for analogs in range(self.an_num): AX3.plot(sx_axis, ensb[analogs])
@@ -360,26 +355,15 @@ class smpgTool():
 		AX3.plot(sx_end, esxth, marker='s', markersize=7, color='blue', label='E_67th pct')
 		AX3.plot(sx_end, emu, marker='^', markersize=7, color='orange', label='E_Avg+Std')
 		AX3.plot(sx_end, esgm, marker='^', markersize=7, color='orange', label='E_Avg-Std')
-
-
-
-
+		AX3.grid()
 
 		plt.show()
 #=====================================================================
 	def reports(self, _iD, _lta, _actyr, _acms, _asts, _cacms, _ensb, _ests):
-		DICT = utils.spawn_deks()
-		START = DICT[self.fst_dk]
-		END = DICT[self.lst_dk]
-		#LAST = self.yrs_len[-1]
-		SEASON = len(range(START, END))
-		if START < END:
-			SEASON = len(range(START, END+1))
-		else:
-			a = len(range(START, 36))
-			b = len(range(0, END+1))	
-			SEASON = a + b	
-		
+		# Setting up from-behind season window
+		SEASON, deks = utils.season(self.fst_dk, self.lst_dk, deks=True)
+	
+		# Iterating the plotter method
 		for place in range(self.places_num):
 			iD = _iD[place]
 			lta = _lta[place]
@@ -390,16 +374,15 @@ class smpgTool():
 			cacms = _cacms[place]
 			ensb = _ensb[place]
 			ests = _ests[place]
-			self.plotter(num, iD, lta, yr, SEASON, acms, asts, cacms, ensb, ests)
-
-
-		return
+			self.plotter(deks, num, iD, lta, yr, SEASON, acms, asts, cacms, ensb, ests)
+		pass
 
 #=====================================================================
+
 fst_yr, lst_yr, ID, raw_data = utils.read('/home/jussc_/Desktop/Seasonal_Monitoring_Probability_Generator/data/ejemplo1.csv')
 
 places_num = len(ID)
-SMPG = smpgTool(fst_yr, lst_yr, 1981, 2010, '1-Feb', '3-May', places_num, 39)
+SMPG = smpgTool(fst_yr, lst_yr, 1981, 2010, '1-Feb', '1-Jan', places_num, 39)
 a, b = SMPG.general_table(raw_data)
 lta = SMPG.LTM(a)
 s_table, b_table, p_table = SMPG.seasonal_table(a, b)
@@ -413,23 +396,15 @@ vector2, stats2 = SMPG.climatological_accumulation(Dict)
 vector3, stats3 = SMPG.analog_ensemble(analogs, ensemble)
 vector4, stats4 = SMPG.climatological_ensemble(ensemble)
 
-ok = utils.outlook(stats2[1], vector4)
 
 
 #angs = utils.export_analogs(ID, ranking)
 #stats, percs = list(utils.stats(vector))
-stats = utils.stats(vector)
 #print(stats)
 #print(percs)
 
-#print(current_acms)
-report = SMPG.reports(ID, lta, b, vector, stats2[0], current_acms, vector3, stats4[0]) 
 
-'''
-b = b[0]
-lta = lta[0]
-acms = vector[0]
-SMPG.plotter(1, 'Carara', lta, b, 1, 1)
-'''
+#print(current_acms)
+report = SMPG.reports(ID, lta, b, vector, stats2, current_acms, vector3, stats4) 
 
 
