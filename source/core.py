@@ -9,17 +9,9 @@ class smpgTool():
 	'''A class that contains all the necessary methods to
 	build the SMPG.
 	'''
-	def __init__(
-					self, 
-					fst_yr, 
-					lst_yr, 
-					fst_cm, 
-					lst_cm, 
-					fst_dk, 
-					lst_dk, 
-					places_num,
-					analogs_num
-				):
+	def __init__(self, fst_yr, lst_yr, fst_cm, lst_cm, fst_dk, 
+				 lst_dk, places_num, analogs_num, savefile,
+				 showfile, fct):
 
 		self.fst_yr = fst_yr
 		self.lst_yr = lst_yr
@@ -29,12 +21,18 @@ class smpgTool():
 		self.lst_dk = lst_dk
 		self.an_num = analogs_num
 		self.yrs = range(fst_yr, lst_yr)
+		self.SEASON, self.START = utils.season(fst_dk, lst_dk)
 		self.yrs_len = range(len(self.yrs))
 		self.places_num = places_num
 		self.dek_num = len(self.yrs) * 36
 		self.dlen = range(36) 
 		self.clim_wind = range(fst_cm, lst_cm+1)
 		self.deks = utils.dek_list()
+		self.savefile = savefile
+		self.showfile = showfile
+		self.forecast = fct
+		self.actual = []
+		self.actualacm = []
 #=====================================================================
 	def general_table(self, raw_data):
 		'''The main entry table. Classifies rainfall data by 
@@ -44,7 +42,6 @@ class smpgTool():
 		:return main_table: The main SMPG table
 		:return current_yr_table: Current year array
 		'''
-
 		main_table = []
 		current_yr_table = []
 
@@ -52,18 +49,20 @@ class smpgTool():
 			past = raw_data[i][0:self.dek_num]
 			past = numpy.split(numpy.array(past), len(self.yrs))
 			current = raw_data[i][self.dek_num:]
+			if self.forecast:
+				self.actual.append(current)
+				current = current[:-1]
 			main_table.append(past)
 			current_yr_table.append(current)
 
 		return main_table, current_yr_table
 #=====================================================================
-	def LTM(self, main_table):
+	def Average(self, main_table):
 		'''Computes long-term average rows for each of the
 		36 dekadals in every location detected in the 
 		input dataset
 		:param main_table: The SMPG general table 
 		'''
-
 		lta_vect = []
 		for i in range(self.places_num):
 			lta = []
@@ -74,7 +73,6 @@ class smpgTool():
 				lta.append(row)
 
 			lta_vect.append(lta)
-
 		return lta_vect
 #=====================================================================
 	def seasonal_table(self, main_table, current_yr_table):
@@ -88,25 +86,25 @@ class smpgTool():
 		boolean_table = []
 		seasonal_table = []
 		present_table  = []
-		SEASON, START = utils.season(self.fst_dk, self.lst_dk)
+		#SEASON, START = utils.season(self.fst_dk, self.lst_dk)
 
 		# STEP 1: SEASONAL TABLE:
 		for i in range(self.places_num):
 			loc = []
 			loc_s = []
-			current_ssn = current_yr_table[i][START:]
+			current_ssn = current_yr_table[i][self.START:]
 			present_table.append(current_ssn)
 			for j in self.yrs_len:
 				if j < self.yrs_len[-1]:
-					yr = main_table[i][j][START:] 
-					add = main_table[i][j+1][:START]
+					yr = main_table[i][j][self.START:] 
+					add = main_table[i][j+1][:self.START]
 					yr = numpy.append(yr, add)
-					ssn = yr[:SEASON]
+					ssn = yr[:self.SEASON]
 					loc.append(yr)
 					loc_s.append(ssn)
 				else:
-					yr = main_table[i][j][START:] 
-					add = current_yr_table[i][:START]
+					yr = main_table[i][j][self.START:] 
+					add = current_yr_table[i][:self.START]
 					yr = numpy.append(yr, add)
 
 					if len(yr) < 36:
@@ -114,14 +112,14 @@ class smpgTool():
 						arr = numpy.array([0] * OFFSET)
 						yr = numpy.append(yr, arr)
 
-					ssn = yr[:SEASON]
+					ssn = yr[:self.SEASON]
 					loc.append(yr)
 					loc_s.append(ssn)
 
 			boolean_table.append(loc)
 			seasonal_table.append(loc_s)
 
-		return seasonal_table, boolean_table, present_table
+		return seasonal_table, present_table
 #=====================================================================
 	def seasonal_accummulations(self, seasonal_table, curr):
 		'''Computes the accummulations over each year column
@@ -130,14 +128,13 @@ class smpgTool():
 
 		:param seasonal_table:
 		:param curr:
-		:return seasonal_accummulations:
-		:return current_accummulations:
+		:return seasonal_accumulations:
+		:return current_accumulations:
 		:return Dict:
 		'''
-
 		Dict = []
-		seasonal_accummulations = []
-		current_accummulations = []
+		seasonal_accumulations = []
+		current_accumulations = []
 		season = range(len(seasonal_table[0][0]))
 		places, deks = numpy.array(curr).shape
 
@@ -151,7 +148,7 @@ class smpgTool():
 					accum += seasonal_table[place][year][dek]
 					ssn.append(accum)
 				yr.append(ssn)
-			seasonal_accummulations.append(yr)
+			seasonal_accumulations.append(yr)
 			Dict.append(dict(zip(self.yrs, yr)))
 
 		# CURRENT YEAR ACCUMULATIONS
@@ -161,9 +158,19 @@ class smpgTool():
 			for dek in range(deks):
 				accum += curr[place][dek]
 				arr.append(accum)
-			current_accummulations.append(arr)
+			current_accumulations.append(arr)
 
-		return seasonal_accummulations, current_accummulations, Dict
+		if self.forecast:
+			for place in range(places):
+				caccum = 0
+				arr = []
+				season = self.actual[place][self.START:]
+				for fdek in range(deks+1):
+					caccum += season[fdek]
+					arr.append(caccum)
+				self.actualacm.append(arr)
+
+		return seasonal_accumulations, current_accumulations, Dict
 #=====================================================================
 	def seasonal_ensemble(self, seasonal_table, present_accum):
 
@@ -207,7 +214,7 @@ class smpgTool():
 				dictionary[key].append(year)
 			ranking.append(dict(dictionary))
 
-		# Getting analog years lists
+		# Getting an analog years list
 		analogs = []
 		for place in range(self.places_num):
 			an = [ord_dict[place][i+1] for i in range(self.an_num)]
@@ -253,8 +260,8 @@ class smpgTool():
 			v = [ensemble[place][year] for year in List]
 			vector.append(v)
 
-		stats = utils.stats(vector)
-		return vector, stats
+		stats, percs = utils.stats(vector, extrapercs=True)
+		return vector, stats, percs
 #=====================================================================
 	def climatological_ensemble(self, ensemble):
 
@@ -263,10 +270,11 @@ class smpgTool():
 			v = [ensemble[place][year] for year in self.clim_wind]
 			vector.append(v)
 
-		stats = utils.stats(vector)
-		return vector, stats
+		stats, percs = utils.stats(vector, extrapercs=True)
+		return vector, stats, percs
 #=====================================================================
-	def plotter(self, deks, num, iD, LTA, actyr, ssn, acms, asts, cacms, ensb, ests):
+	def plotter(self, deks, num, iD, LTA, actyr, ssn, acms, asts, 
+				cacms, ensb, ests, angs, aok, eok, aasts, cests, Dir):
 		'''An iterable method designed to output a single 
 		report
 
@@ -281,9 +289,33 @@ class smpgTool():
 		:param cacms: Accumulations for current year
 		:param ensb: Analog ensemble in a place
 		:param ests: Analog ensemble statistics
+		:param angs: analog years ranking dictionary
+		:param aok: outlook stats from analog years
+		:param eok: outlook stats form climatology
+		:param aasts: seasonal stats from analog years
+		:param cests: ensemble stats from climatology
+		:param Dir: Directory where the report will be saved
 		''' 
+		# Frequently used variables
+		col = 'Analog years', 'Climatology'
+		altm, astd, athrd, asxth, amu, asgm, ah, al, aavg, amed = aasts
+		ltm, std, thrd, sxth, mu, sgm, h, l, avg, med = asts
+		eltm, estd, ethrd, esxth, emu, esgm, eh, el, eavg, emed = ests
+		cltm, cstd, cthrd, csxth, cmu, csgm, ch, cl, cavg, cmed = cests
+		AA, AN, AB = aok
+		CA, CN, CB = eok
+		sx_axis = range(ssn)
+		sx_end = sx_axis[-1]
+		cx_axis = range(len(cacms))
+		ac_axis = range(len(actyr))
+		total = round(cacms[-1])
+		empty = [[None]]
+		k = 0.025
+
 		# Config
-		fig = plt.figure(num=num, tight_layout=True, figsize=(16, 8))
+		fig = plt.figure(num=num, tight_layout=True, figsize=(16, 8), clear=True)
+		fig.canvas.set_window_title('Code: {}'.format(iD))
+
 		gs = GridSpec(2, 3)
 
 		# Gridspecs
@@ -291,17 +323,17 @@ class smpgTool():
 		AX2 = fig.add_subplot(gs[1, 0])
 		AX3 = fig.add_subplot(gs[1, 1])
 		AX4 = fig.add_subplot(gs[:, 2])
-
+	
 		# Titles
-		AX1.set_title('Average & current rainfall season: {}'.format(iD))
+		AX1.set_title('Current rainfall status for {}'.format(iD))
 		AX2.set_title("Seasonal Accumulations")
 		AX3.set_title("Ensemble")
 		AX4.set_title("Summary Statistics")
 		
 		# x-labels
-		AX1.set_xlabel("Dekads")
-		AX2.set_xlabel("Dekads")
-		AX3.set_xlabel("Dekads")
+		AX1.set_xlabel('Dekads')
+		AX2.set_xlabel('Season')
+		AX3.set_xlabel('Season')
 
 		# y-labels
 		AX1.set_ylabel("Rainfall [mm]")
@@ -313,17 +345,6 @@ class smpgTool():
 		AX2.grid()
 		AX3.grid()
 
-		# Variables
-		col = 'Analog years', 'Climatology'
-		ltm, std, thrd, sxth, mu, sgm, h, l = asts
-		eltm, estd, ethrd, esxth, emu, esgm, eh, el = ests
-		sx_axis = range(ssn)
-		sx_end = sx_axis[-1]
-		cx_axis = range(len(cacms))
-		ac_axis = range(len(actyr))
-		empty = [[None]]
-		k = 0
-
 		# x-label ticks
 		AX1.set_xticks(self.dlen)
 		AX1.set_xticklabels(self.deks, rotation='vertical')
@@ -333,10 +354,10 @@ class smpgTool():
 		AX3.set_xticklabels(deks, rotation='vertical')
 
 		# AX1 plot
-		AX1.plot(self.dlen, LTA, color='r', lw=5, label='LTA: {}-{}'.format(self.fst_cm, self.lst_cm))
-		AX1.bar(ac_axis, actyr, color='b', label='Current year: {}'.format(self.lst_yr))
-		AX1.legend()
-
+		AX1.plot(self.dlen, LTA, color='r', lw=5, label='Climatological LTA: {}-{}'.format(self.fst_cm, self.lst_cm))
+		if self.forecast: AX1.bar(range(len(actyr)+1), self.actual[num], color='m', label='Forecasted dekad')
+		AX1.bar(ac_axis, actyr, color='b', label='Current year rainfall status: {}'.format(self.lst_yr))
+	
 		# AX2 plot
 		for analogs in range(self.an_num): AX2.plot(sx_axis, acms[analogs])
 		AX2.plot(sx_axis, ltm, color='r', lw=5, label='LTM')
@@ -345,6 +366,7 @@ class smpgTool():
 		AX2.plot(sx_end, sxth, marker='s', markersize=7, color='k', label='67th pct')
 		AX2.plot(sx_end, mu, marker='^', markersize=7, color='green', label='Avg+Std')
 		AX2.plot(sx_end, sgm, marker='^', markersize=7, color='green', label='Avg-Std')
+		if self.forecast: AX2.plot(range(len(cacms)+1), self.actualacm[num], color='m', lw=5, label='Forecast')
 		AX2.plot(cx_axis, cacms, color='b', lw=5, label=self.lst_yr)
 	
 		# AX3 plot
@@ -364,12 +386,12 @@ class smpgTool():
 
 		# Legends
 		AX1.legend()
-		AX2.legend(loc='upper center', bbox_to_anchor=(0.5, -0.35), shadow=True, ncol=5, fontsize=7.5)
-		AX3.legend(loc='upper center', bbox_to_anchor=(0.5, -0.35), shadow=True, ncol=5, fontsize=7.5)
+		AX2.legend(loc='upper center', bbox_to_anchor=(0.5, -0.35), shadow=True, ncol=4, fontsize=8)
+		AX3.legend(loc='upper center', bbox_to_anchor=(0.5, -0.35), shadow=True, ncol=4, fontsize=8)
 
 		# AX4 -Tables - Headers
 		AX4.axis('off')
-		AX4.table(cellText=empty, colLabels=['Climatological Analysis'], bbox=[0.2, 0.68-k, 0.7, 0.12 ])
+		AX4.table(cellText=empty, colLabels=['Seasonal Analysis'], bbox=[0.2, 0.68-k, 0.7, 0.12 ])
 		AX4.table(cellText=empty, colLabels=['Assessment at current dekad'], bbox=[0.2, 0.46-k, 0.7, 0.12 ])
 		AX4.table(cellText=empty, colLabels=['Projection to the end of the season'], bbox=[0.2, 0.24-k, 0.7, 0.12])
 		AX4.table(cellText=empty, colLabels=['Probability at the end of season'], bbox=[0.2, -0.13-k, 0.7, 0.12 ])
@@ -377,36 +399,44 @@ class smpgTool():
 		# Analog years table
 		label = 'Top 1', 'Top 2', 'Top 3'
 		title = ['Closest Analog Years']
-		d = [1], [2], [3]
+		data = [angs[1]], [angs[2]], [angs[3]]
 		box = [0.1, 0.82-k, 0.8, 0.18]
-		AX4.table(rowLabels=label, colLabels=title, cellText=d, cellLoc='center', bbox=box)
+		AX4.table(rowLabels=label, colLabels=title, cellText=data, cellLoc='center', bbox=box)
 
 		# Climatology table
 		label = 'Average', 'Deviation', 'Median'
-		data = [None]*2, [None]*2, [None]*2
-		AX4.table(rowLabels=label, colLabels=col, cellText=data, bbox=[0.2, 0.60-k, 0.7, 0.15])
+		data = [aavg, avg], [astd, std], [amed, med]
+		AX4.table(rowLabels=label, colLabels=col, cellText=data, cellLoc='center', bbox=[0.2, 0.60-k, 0.7, 0.15])
 
 		# Assessments table
 		label = 'Total', 'LTA Value', 'LTA PCT'
-		data = [None]*2, [None]*2, [None]*2
-		AX4.table(rowLabels=label, colLabels=col, cellText=data, bbox=[0.2, 0.38-k, 0.7, 0.15])
+		data = [total, total], [None]*2, [None]*2
+		AX4.table(rowLabels=label, colLabels=col, cellText=data, cellLoc='center', bbox=[0.2, 0.38-k, 0.7, 0.15])
 
 		# Projection table
 		label = 'Average', 'Deviation', 'Median', '33rd. PCTL', '67th. PCTL', 'LTA Value', 'Ending LTA'
-		data = [None]*2, [None]*2, [None]*2, [None]*2, [None]*2, [None]*2, [None]*2
-		AX4.table(rowLabels=label, colLabels=col, cellText=data, bbox=[0.2, 0.01-k, 0.7, 0.3])
+		data = [eavg, cavg], [estd, cstd], [emed, cmed], [ethrd, cthrd], [esxth, csxth], [None]*2, [None]*2
+		AX4.table(rowLabels=label, colLabels=col, cellText=data, cellLoc='center', bbox=[0.2, 0.01-k, 0.7, 0.3])
 
 		# Outlook table
 		label = 'Above normal', 'Normal', 'Below normal'
-		data = [None]*2, [None]*2, [None]*2
-		AX4.table(rowLabels=label, colLabels=col, cellText=data, bbox=[0.2, -0.21-k, 0.7, 0.15])
-
+		data = [AA, CA], [AN, CN], [AB, CB]
+		AX4.table(rowLabels=label, colLabels=col, cellText=data, cellLoc='center', bbox=[0.2, -0.21-k, 0.7, 0.15])
+		
 		fig.align_labels()
-		plt.show()
+
+		# Display and savefile conditions
+		if self.savefile:
+			fig.savefig('{}/{}_rep'.format(Dir, iD), format='png')
+		
+		if self.showfile:
+			plt.show()
 #=====================================================================
-	def reports(self, _iD, _lta, _actyr, _acms, _asts, _cacms, _ensb, _ests):
+	def reports(self, _iD, _lta, _actyr, _acms, _asts, _cacms, _ensb, 
+	            _ests, _angs, _aok, _eok, _aasts, _cests, Dir):
+
 		# Setting up from-behind season window
-		SEASON, deks = utils.season(self.fst_dk, self.lst_dk, deks=True)
+		ssn, deks = utils.season(self.fst_dk, self.lst_dk, deks=True)
 	
 		# Iterating the plotter method
 		for place in range(self.places_num):
@@ -414,42 +444,50 @@ class smpgTool():
 			lta = _lta[place]
 			yr = _actyr[place]
 			acms = _acms[place]
-			num = place + 1
 			asts = _asts[place]
 			cacms = _cacms[place]
 			ensb = _ensb[place]
 			ests = _ests[place]
-			self.plotter(deks, num, iD, lta, yr, SEASON, acms, asts, cacms, ensb, ests)
-		pass
-
+			angs = _angs[place]
+			aok = _aok[place]
+			eok = _eok[place]
+			aasts = _aasts[place]
+			cests = _cests[place]
+			self.plotter(deks, place, iD, lta, yr, ssn, acms, asts, 
+			cacms, ensb, ests, angs, aok, eok, aasts, cests, Dir)
 #=====================================================================
 
-fst_yr, lst_yr, ID, raw_data = utils.read('/home/jussc_/Desktop/Seasonal_Monitoring_Probability_Generator/data/ejemplo1.csv')
+fst_yr, lst_yr, IDs, raw_data = utils.read('/home/jussc_/Desktop/Seasonal_Monitoring_Probability_Generator/data/ejemplo1.csv')
+Dir = '/home/jussc_/Desktop/ejemplos'
+SIZE = len(IDs)
 
-places_num = len(ID)
-SMPG = smpgTool(fst_yr, lst_yr, 1981, 2010, '3-Apr', '3-Jan', places_num, 15)
-a, b = SMPG.general_table(raw_data)
-lta = SMPG.LTM(a)
-s_table, b_table, p_table = SMPG.seasonal_table(a, b)
-season_acms, current_acms, Dict = SMPG.seasonal_accummulations(s_table, p_table)
-R1 = utils.SDE(s_table, p_table)
-R2 = utils.SSE(season_acms, current_acms)
-ranking, analogs = SMPG.compute_analogs(R1, R2)
-ensemble = SMPG.seasonal_ensemble(s_table, current_acms)
-vector, stats = SMPG.analog_accumulation(analogs, Dict)
-vector2, stats2 = SMPG.climatological_accumulation(Dict)
-vector3, stats3 = SMPG.analog_ensemble(analogs, ensemble)
-vector4, stats4 = SMPG.climatological_ensemble(ensemble)
+SMPG = smpgTool(fst_yr, lst_yr, 1985, 2010, '1-Feb', '1-Sep', SIZE, 25, savefile=False, showfile=True, fct=False)
 
+# Main table and seasonal table
+main_table, status_table = SMPG.general_table(raw_data)
+s_table, cs_table = SMPG.seasonal_table(main_table, status_table)
+average = SMPG.Average(main_table)
 
+# Computing generic accumulation & ensemble tables
+season_acms, actual_accum, Dict = SMPG.seasonal_accummulations(s_table, cs_table)
+ensemble = SMPG.seasonal_ensemble(s_table, actual_accum)
 
-#angs = utils.export_analogs(ID, ranking)
-#stats, percs = list(utils.stats(vector))
-#print(stats)
-#print(percs)
+#Computing analog years algorithm
+sde = utils.SDE(s_table, cs_table)
+sse = utils.SSE(season_acms, actual_accum)
+ranking, analogs = SMPG.compute_analogs(sde, sse)
 
+# Compuring seasonal accumulations for analogs and climatology
+aa_table, aa_stats = SMPG.analog_accumulation(analogs, Dict)
+ca_table, ca_stats = SMPG.climatological_accumulation(Dict)
+ae_table, ae_stats, ae_pctl = SMPG.analog_ensemble(analogs, ensemble)
+ce_table, ce_stats, ce_pctl = SMPG.climatological_ensemble(ensemble)
 
-#print(current_acms)
-report = SMPG.reports(ID, lta, b, vector, stats2, current_acms, vector3, stats4) 
+# Computing outlook params
+ae_otlk = utils.outlook(ae_pctl, ae_table)
+ce_otlk = utils.outlook(ce_pctl, ce_table)
 
+# Generating reports   
+SMPG.reports(IDs, average, status_table, aa_table, ca_stats, actual_accum, 
+ae_table, ae_stats, ranking, ae_otlk, ce_otlk, aa_stats, ce_stats, Dir=Dir) 
 

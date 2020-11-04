@@ -168,7 +168,9 @@ def stats(vector, extrapercs=False):
 		sgm = round(avg - std)
 		h = [i * 1.2 for i in ltm]
 		l = [i * 0.8 for i in ltm]
-		stats.append([ltm, std, thrd, sxth, mu, sgm, h, l])
+		Avg = round(numpy.mean(ltm))
+		Med = round(numpy.median(ltm))
+		stats.append([ltm, std, thrd, sxth, mu, sgm, h, l, Avg, Med])
 		percs.append((sxth, thrd))
 
 	if extrapercs == False:	
