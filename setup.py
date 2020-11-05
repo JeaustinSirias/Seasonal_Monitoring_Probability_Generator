@@ -9,7 +9,7 @@ with open('LICENSE') as legal:
 
 setup(
     name='SMPG-Project',
-    packages=['test', 'source'],
+    packages=['test', 'source', 'source.image'],
     entry_points={'console_scripts': ['runfile = source.build:main']},
     version='1.2.0',
     description='This is a rainfall forecast generator & analysis tool',
@@ -18,5 +18,6 @@ setup(
     author_email='jeaustin.sirias@ucr.ac.cr',
     url='https://github.com/JeaustinSirias/Seasonal_Monitoring_Probability_Generator',
     license=license,
+    include_package_data=True,
 )
  

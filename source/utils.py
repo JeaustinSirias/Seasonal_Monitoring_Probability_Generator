@@ -2,6 +2,7 @@
 #
 # Copyright (c) 2020 Jeaustin Sirias
 #
+import os
 import numpy 
 import pandas
 from scipy.stats import rankdata
@@ -342,5 +343,11 @@ def lt_stats(act_accums, sstats, estats):
 
 	return lt_sts
 #============================================================
+def filepath(rel_path, *filenames):
+	path = os.path.dirname(__file__)
+	abspath = os.path.join(path, rel_path)
+	paths = [abspath + files for files in filenames]
+	return paths
 #============================================================
 #============================================================
+

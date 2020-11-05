@@ -3,17 +3,31 @@
 # Copyright (c) 2020 Jeaustin Sirias
 #
 import os
+import tkinter as tk
+import webbrowser
 from .utils import *
 from .core import smpgTool
-import tkinter as tk
 from ttk import Combobox
-import webbrowser
+
+'''
+script_dir = os.path.dirname(__file__)
+rel_path = 'image/'
+abs_file_path = os.path.join(script_dir, rel_path)
+current_file = 'background.gif'
+current_file2 = 'icon.gif'
+file1 = abs_file_path + current_file
+file2 = abs_file_path + current_file2
+'''
 
 class App():
     def __init__(self, master):
 
+        # LOADING ABS PATH
+        files = 'background.gif', 'icon.gif'
+        bgs, icon = filepath('image/', *files)
+
         # BACKGROUND CANVAS
-        self.background = tk.PhotoImage(file='./source/image/background.gif')
+        self.background = tk.PhotoImage(file=bgs)
         bg = tk.Canvas(master, width=800, height=100)
         bg.create_image(0, 0, image=self.background, anchor='nw')
         bg.pack()
@@ -24,7 +38,7 @@ class App():
         master.title('SMPG Project v1.2.0')
 
         # WINDOWED LOGO
-        self.logo = tk.PhotoImage(file='./source/image/icon.gif')
+        self.logo = tk.PhotoImage(file=icon)
         master.iconphoto(True, self.logo)
 
         # GUI ATTRIBUTES
