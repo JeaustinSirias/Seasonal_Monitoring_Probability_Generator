@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (c) 2020 Jeaustin Sirias
+#
 import numpy 
 import pandas
 from scipy.stats import rankdata
@@ -34,34 +38,38 @@ def season(fst_dek, lst_dek, deks=False):
 		return season, dekads
 #============================================================
 def read(csv_file):
+	'''Imports the raw rainfall dataset and shreds it
+	into ID location codes and raw data.
+
+	:param csv_file: CSV dataset
+	:return: init and end year, raw data and IDs
+	'''
 	# Read raw dataset as Pandas dataframe
-	data = pandas.read_csv(csv_file, header=None)
+	data = pandas.read_csv(csv_file, header=None, dtype={0:object})
 
 	# Choose first year
-	fst_yr = year_format(data.loc[0][1])
+	fst_yr = year_format(int(data.loc[0][1]))
 
 	# Filter locations ID/names
 	ID = list(data[0].loc[1:])
-
+	
 	# Choose last year and raw data for each place
-	if data.loc[0].iloc[-1] == 'scenario':
-		lst_yr = year_format(data.loc[0].iloc[-2])
-		scenarios = list(data.iloc[1:,-1:])
-		raw_data = []
-		for i in range(len(ID)):
-			location = list(data.loc[i+1][1:-1])
-			raw_data.append(location)
+	#if data.loc[0].iloc[-1] == 'scenario':
+	#	lst_yr = year_format(data.loc[0].iloc[-2])
+	#	scenarios = list(data.iloc[1:,-1:])
+	#	raw_data = []
+	#	for i in range(len(ID)):
+	#		location = list(data.loc[i+1][1:-1])
+	#		raw_data.append(location)
+	#	return fst_yr, lst_yr, ID, raw_data, scenarios
+	#else:
+	lst_yr = year_format(int(data.loc[0].iloc[-1]))
+	raw_data = []
+	for i in range(len(ID)):
+		location = list(data.loc[i+1][1:])
+		raw_data.append(location)
 
-		return fst_yr, lst_yr, ID, raw_data, scenarios
-
-	else:
-		lst_yr = year_format(data.loc[0].iloc[-1])
-		raw_data = []
-		for i in range(len(ID)):
-			location = list(data.loc[i+1][1:])
-			raw_data.append(location)
-
-		return fst_yr, lst_yr, ID, raw_data
+	return fst_yr, lst_yr, ID, raw_data
 #============================================================
 def spawn_deks():
 	'''
@@ -81,7 +89,13 @@ def spawn_deks():
 
 	return DEK
 #============================================================
-def SDE(past_table, present_table):
+def sdE(past_table, present_table):
+	''' Computes the sum of dekad error.
+	
+	:param past_table: 
+	:param present_table:
+	:return: A sum dekad error vector
+	'''
 
 	x, y = numpy.array(present_table).shape
 	dim1, dim2, dim3 = numpy.array(past_table).shape
@@ -100,7 +114,7 @@ def SDE(past_table, present_table):
 
 	return SDE
 #============================================================
-def SSE(past_accums, present_accums):
+def ssE(past_accums, present_accums):
 	'''
 	'''
 	# Get the difference squared 
@@ -127,7 +141,6 @@ def SSE(past_accums, present_accums):
 #============================================================
 def dek_list():
 	DEK = [
-
 		   '1-Jan', '2-Jan', '3-Jan', '1-Feb', '2-Feb', 
 		   '3-Feb', '1-Mar', '2-Mar', '3-Mar', '1-Apr', 
 		   '2-Apr', '3-Apr', '1-May', '2-May', '3-May', 
@@ -136,12 +149,11 @@ def dek_list():
 		   '2-Sep', '3-Sep', '1-Oct', '2-Oct', '3-Oct', 
 		   '1-Nov', '2-Nov', '3-Nov', '1-Dec', '2-Dec', 
 		   '3-Dec'
-
 		   ]
 
 	return DEK
 #============================================================
-def stats(vector, extrapercs=False):
+def Stats(vector, extrapercs=False):
 	'''Computes required SMPG statistics: LTM, stDev, 
 	33th/67th percentiles, 120-80% varation, and 
 	LTM+/-StDev, in that order
@@ -168,8 +180,8 @@ def stats(vector, extrapercs=False):
 		sgm = round(avg - std)
 		h = [i * 1.2 for i in ltm]
 		l = [i * 0.8 for i in ltm]
-		Avg = round(numpy.mean(ltm))
-		Med = round(numpy.median(ltm))
+		Avg = round(numpy.mean(lst_row))
+		Med = round(numpy.median(lst_row))
 		stats.append([ltm, std, thrd, sxth, mu, sgm, h, l, Avg, Med])
 		percs.append((sxth, thrd))
 
@@ -191,7 +203,7 @@ def outlook(percs, ensemble):
 	outlook = []
 	#x, y, z = numpy.array(ensemble).shape
 	x = len(percs)
-	y = len(percs[0])
+	y = len(ensemble[0])
 	prob = lambda value: round((value / y) * 100)
 	for place in range(x):
 		row = numpy.array(ensemble[place]).transpose()[-1]
@@ -201,21 +213,24 @@ def outlook(percs, ensemble):
 			VALUE = row[yr]
 			if VALUE > HI: 
 				A += 1
-			if VALUE < LO: 
+			elif VALUE < LO: 
 				B += 1
-			if HI >= VALUE >= LO:
+			elif HI >= VALUE >= LO:
 				N += 1
 		outlook.append((prob(A), prob(N), prob(B)))
 
 	return outlook
 #============================================================
-def export_analogs(ID, data):
+def export_analogs(ID, data, dirpath):
 	'''A function that exports a CSV file with the first
 	top 10 analog years for each location.
 
 	:param ID: A vector with the name of each place.
 	:param data: A vector with a dict per each place
+	:return: nothing
 	'''
+	if dirpath == None:
+		return
 
 	# Sorting dictionary by key ascending key order
 	size = range(len(ID))
@@ -227,38 +242,105 @@ def export_analogs(ID, data):
 
 	# Building dataframe
 	df = pandas.DataFrame(data=data, index=ID, columns=cols)
-	#df.to_csv('{dir}/analogs.csv'.format(dir = dirName))
-
-	print(df)
+	df.to_csv('{dir}/analogs.csv'.format(dir = dirpath))
 #============================================================
-def export_summary(ID, data):
+def export_summary(iD, ca_stats, ce_stats, ltm_stats, dirpath):
+	'''Exports all climatological statistics from the spawned
+	tables in the reports.
+
+	:param iD: Locations' names vector
+	:param:
+	:param:
+	:param:
+	:param:
+	:return: nothing
+	'''
+	if dirpath == None:
+		return
 	cols = [
+		'Seasonal_StDev', 'Seasonal_33rd_pctl', 
+		'Seasonal_67th_pctl', 'Avg+StDev', 'Avg-StDev', 
+		'Seasonal_Avg', 'Seasonal_Med', 'Total_current_Dek', 
+		'LTA_val', 'LTA_pct', 'Ensemble_StDev', 
+		'E_33rd_pct.', 'E_67th_pct', 'E_Avg+StDev', 
+		'E_Avg-StDev', 'Ensemble_Avg', 'Ensemble_Med',
+		'E_LTA_Value', 'E_LTA_pct'
+		]
+	sts1 = []
+	sts2 = []
+	nums = [1, 2, 3, 4, 5, 8, 9]
+	for place in range(len(iD)):
+		ses = []
+		ens = []
+		for i in nums:
+			s = ca_stats[place][i]
+			e = ce_stats[place][i]
+			ses.append(s)
+			ens.append(e)
+		sts1.append(ses)
+		sts2.append(ens)
 
-		    'Seasonal Avg', 'Seasonal StDev', 'Seasonal Median',  
-			'Seasonal 33rd perct', 'Seasonal 67th perct', 
-			'Total at current Dek', 'LTA Value', 'LTA Percentage', 
-			'Ensemble Avg', 'Ensemble StDev', 'Ensemble Median', 
-			'E_33rd. Perc.', 'E_67th. Perc', 'E_LTA Value', 
-			'E_LTA Perc', 'Outlook: Above', 'Outlook: Normal', 
-			'Outlook: Below'
+	# Transposing to set variables as columns
+	sts1 = numpy.array(sts1).transpose()
+	sts2 = numpy.array(sts2).transpose()
+	ltm_stats = numpy.array(ltm_stats).transpose()
+	
+	dsv, pct3, pct6, mu, sgm, avg, m = sts1
+	edsv, epct3, epct6, emu, esgm, eavg, em = sts2
+	a, b, c, d = ltm_stats
 
-			]
-		
-	pass
+	data = numpy.array([dsv, pct3, pct6, mu, sgm, avg, m, 
+	     a, b, c, edsv, epct3, epct6, emu, esgm, eavg, em, 
+		 avg, d]).transpose()
+
+	#print(data)
+	df = pandas.DataFrame(data=data, index=iD, columns=cols)
+	df.to_csv('{dir}/statistics.csv'.format(dir = dirpath))	
 #============================================================
-def export_stats():
+def export_stats(iD, ltm_stats, outlook, dirpath):
+	'''Computes a summary of probabilities based on LTA
+	percentages and the probability at the end of season.
+
+	:param ltm_stats: climatological long term stats 
+	:param outlook: Probability of rainfall at the end.
+	:param dirpath: file directory to save CSV file
+	:return: nothing
+	'''
+	if dirpath == None:
+		return
+	
+	PCT, EPCT = numpy.array(ltm_stats).transpose()[2:]
+	AN, NN, BN = numpy.array(outlook).transpose()
+	data = numpy.array([PCT, EPCT, AN, NN, BN]).transpose()
 	cols = [
 		    'pctofavgatdek', 'pctofavgatEOS', 
 	        'Above', 'Normal', 'Below'
 		   ]
-
-
-
-
-
-
-	pass
+	df = pandas.DataFrame(data=data, index=iD, columns=cols)
+	df.to_csv('{dir}/summary.csv'.format(dir = dirpath))	
 #============================================================
+def lt_stats(act_accums, sstats, estats):
+	'''Computes the long term average statistics for
+	seasonal and ensemble featured tables. This function
+	must be optimized next versions.
+
+	:param act_accums: current year accumulations vector
+	:param sstats: seasonal statistics vector
+	:param estats: ensemble statistics vector
+	:return: LTA statistics vector
+	'''
+	lt_sts = []
+	LOCS, SIZE = numpy.array(act_accums).shape
+	for place in range(LOCS):
+		TOTAL = round(act_accums[place][-1])
+		LTA = round(sstats[place][0][SIZE-1])
+		PCT = round((TOTAL / LTA) * 100)
+		AVG = sstats[place][8]
+		EAVG = estats[place][8]
+		EPCT = round((EAVG / AVG) * 100)
+		lt_sts.append([TOTAL, LTA, PCT, EPCT])
+
+	return lt_sts
 #============================================================
 #============================================================
 #============================================================
