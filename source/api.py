@@ -23,6 +23,10 @@ class App():
         frame.pack()
         master.title('SMPG Project v1.2.0')
 
+        # WINDOWED LOGO
+        self.logo = tk.PhotoImage(file='./source/image/icon.gif')
+        master.iconphoto(True, self.logo)
+
         # GUI ATTRIBUTES
         self.dekad_lst = dek_list()
         self.V1 = tk.StringVar(frame)
@@ -239,7 +243,6 @@ class App():
         window.title('About SMPG Project')
 
         # LOGO
-        self.logo = tk.PhotoImage(file='./source/image/icon.gif')
         window.iconphoto(True, self.logo)
 
         # LABELS
