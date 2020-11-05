@@ -12,7 +12,7 @@ $ git clone https://github.com/JeaustinSirias/Seasonal_Monitoring_Probability_Ge
 **2.** Move to the cloned directory by using your command window and type:
 
 ```
-$ make requiere 
+$ make require 
 ```
 in order to install all the needed depencences. You can choose either intalling the package as it follows:
 
