@@ -1,5 +1,5 @@
 # Seasonal Monitoring Probability Generator (SMPG Project)
-This is an academic tool to support climate researches for [Geophysical Center of Investigations](http://www.cigefi.ucr.ac.cr/). This tool offers multiple features to compliment seasonal rainfall probability analysis according to past years observed data.
+This is an academic tool to support climatological researches for [Geophysical Center of Investigations](http://www.cigefi.ucr.ac.cr/). This tool offers multiple features to compliment seasonal rainfall probability analysis according to past years observed data.
 
 ![user_interfase](https://github.com/JeaustinSirias/Seasonal_Monitoring_Probability_Generator/blob/main/docs/graphic_user_interfase.png)
 
