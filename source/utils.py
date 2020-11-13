@@ -259,13 +259,25 @@ def export_summary(iD, ca_stats, ce_stats, ltm_stats, dirpath):
 	if dirpath == None:
 		return
 	cols = [
-		'Seasonal_StDev', 'Seasonal_33rd_pctl', 
-		'Seasonal_67th_pctl', 'Avg+StDev', 'Avg-StDev', 
-		'Seasonal_Avg', 'Seasonal_Med', 'Total_current_Dek', 
-		'LTA_val', 'LTA_pct', 'Ensemble_StDev', 
-		'E_33rd_pct.', 'E_67th_pct', 'E_Avg+StDev', 
-		'E_Avg-StDev', 'Ensemble_Avg', 'Ensemble_Med',
-		'E_LTA_Value', 'E_LTA_pct'
+		'Seasonal_StDev', 
+		'Seasonal_33rd_pctl', 
+		'Seasonal_67th_pctl', 
+		'Avg+StDev', 
+		'Avg-StDev', 
+		'Seasonal_Avg', 
+		'Seasonal_Med', 
+		'Total_current_Dek', 
+		'LTA_val', 
+		'LTA_pct', 
+		'Ensemble_StDev', 
+		'E_33rd_pct.', 
+		'E_67th_pct', 
+		'E_Avg+StDev', 
+		'E_Avg-StDev', 
+		'Ensemble_Avg', 
+		'Ensemble_Med',
+		'E_LTA_Value', 
+		'E_LTA_pct'
 		]
 	sts1 = []
 	sts2 = []
@@ -314,8 +326,11 @@ def export_stats(iD, ltm_stats, outlook, dirpath):
 	AN, NN, BN = numpy.array(outlook).transpose()
 	data = numpy.array([PCT, EPCT, AN, NN, BN]).transpose()
 	cols = [
-		    'pctofavgatdek', 'pctofavgatEOS', 
-	        'Above', 'Normal', 'Below'
+		    'pctofavgatdek', 
+			'pctofavgatEOS', 
+	        'Above', 
+			'Normal', 
+			'Below'
 		   ]
 	df = pandas.DataFrame(data=data, index=iD, columns=cols)
 	df.to_csv('{dir}/summary.csv'.format(dir = dirpath))	

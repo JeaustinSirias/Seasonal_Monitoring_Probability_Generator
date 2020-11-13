@@ -279,7 +279,7 @@ class smpgTool():
 #=====================================================================
 	def plotter(self, deks, num, iD, LTA, actyr, ssn, acms, asts, 
 				cacms, ensb, ests, angs, aok, eok, aasts, cests,
-				saltm, celtm, dirpath):
+				saltm, celtm, anlist, dirpath):
 		'''An iterable method designed to output a single 
 		report
 
@@ -301,6 +301,7 @@ class smpgTool():
 		:param cests: ensemble stats from climatology
 		:param saltm: seasonal LTM statistics
 		:param celtm: climatological LTM statistics
+		:param anlist: analog years list (ordinally ranked)
 		:param Dir: Directory where the report will be saved
 		''' 
 		# Frequently used variables
@@ -322,7 +323,12 @@ class smpgTool():
 		k = 0.025
 
 		# Config
-		fig = plt.figure(num=num, tight_layout=True, figsize=(16, 9), clear=True)
+		fig = plt.figure(
+			num=num, 
+			tight_layout=True, 
+			figsize=(16, 9), 
+			clear=True
+			)
 		fig.canvas.set_window_title('Code: {}'.format(iD))
 		gs = GridSpec(2, 3)
 
@@ -362,19 +368,83 @@ class smpgTool():
 		AX3.set_xticklabels(deks, rotation='vertical')
 
 		# AX1 plot
-		AX1.plot(self.dlen, LTA, color='r', lw=5, label='Climatological LTA: {}-{}'.format(self.fst_cm, self.lst_cm))
-		if self.forecast: AX1.bar(range(len(actyr)+1), self.actual[num], color='m', label='Forecasted dekad')
-		AX1.bar(ac_axis, actyr, color='b', label='Current year rainfall status: {}'.format(self.lst_yr))
+		AX1.plot(
+			self.dlen, 
+			LTA, 
+			color='r', 
+			lw=5, 
+			label='Climatological LTA: {}-{}'.format(self.fst_cm, self.lst_cm)
+		)
+		if self.forecast: 
+			AX1.bar(
+				range(len(actyr)+1), 
+				self.actual[num], 
+				color='m', 
+				label='Forecasted dekad'
+			)
+		AX1.bar(
+			ac_axis, 
+			actyr, 
+			color='b', 
+			label='Current year rainfall status: {}'.format(self.lst_yr)
+		)
 	
 		# AX2 plot
-		for analogs in range(self.an_num): AX2.plot(sx_axis, acms[analogs])
+		if self.an_num > 5:
+			for analogs in range(self.an_num): 
+				AX2.plot(sx_axis, acms[analogs])
+		else:
+			for analogs in range(self.an_num):
+				AX2.plot(sx_axis, acms[analogs], label = anlist[analogs])
+		
 		AX2.plot(sx_axis, ltm, color='r', lw=5, label='LTM')
-		AX2.fill_between(sx_axis, h, l, color='lightblue', label='120-80%')
-		AX2.plot(sx_end, thrd, marker='s', markersize=7, color='k', label='33rd pct')
-		AX2.plot(sx_end, sxth, marker='s', markersize=7, color='k', label='67th pct')
-		AX2.plot(sx_end, mu, marker='^', markersize=7, color='green', label='Avg+Std')
-		AX2.plot(sx_end, sgm, marker='^', markersize=7, color='green', label='Avg-Std')
-		if self.forecast: AX2.plot(range(len(cacms)+1), self.actualacm[num], color='m', lw=5, label='Forecast')
+		AX2.fill_between(
+			sx_axis, 
+			h, 
+			l, 
+			color='lightblue', 
+			label='120-80%'
+		)
+		AX2.plot(
+			sx_end, 
+			thrd, 
+			marker='s', 
+			markersize=7, 
+			color='k', 
+			label='33rd pct'
+		)
+		AX2.plot(
+			sx_end, 
+			sxth, 
+			marker='s', 
+			markersize=7, 
+			color='k', 
+			label='67th pct'
+		)
+		AX2.plot(
+			sx_end, 
+			mu, 
+			marker='^', 
+			markersize=7, 
+			color='green', 
+			label='Avg+Std'
+		)
+		AX2.plot(
+			sx_end, 
+			sgm, 
+			marker='^', 
+			markersize=7, 
+			color='green', 
+			label='Avg-Std'
+		)
+		if self.forecast: 
+			AX2.plot(
+				range(len(cacms)+1), 
+				self.actualacm[num], 
+				color='m', 
+				lw=5, 
+				label='Forecast'
+			)
 		AX2.plot(cx_axis, cacms, color='b', lw=5, label=self.lst_yr)
 	
 		# AX3 plot
@@ -394,45 +464,112 @@ class smpgTool():
 
 		# Legends
 		AX1.legend()
-		AX2.legend(loc='upper center', bbox_to_anchor=(0.5, -0.35), shadow=True, ncol=4, fontsize=8)
-		AX3.legend(loc='upper center', bbox_to_anchor=(0.5, -0.35), shadow=True, ncol=4, fontsize=8)
+		AX2.legend(
+			loc='upper center', 
+			bbox_to_anchor=(0.5, -0.35), 
+			shadow=True, 
+			ncol=4, 
+			fontsize=8
+		)
+		AX3.legend(
+			loc='upper center', 
+			bbox_to_anchor=(0.5, -0.35), 
+			shadow=True, 
+			ncol=4, 
+			fontsize=8
+		)
 
 		# AX4 -Tables - Headers
 		AX4.axis('off')
-		AX4.table(cellText=empty, colLabels=['Seasonal Analysis'], bbox=[0.2, 0.68-k, 0.7, 0.12 ], colColours=hdr)
-		AX4.table(cellText=empty, colLabels=['Assessment at current dekad'], bbox=[0.2, 0.46-k, 0.7, 0.12 ], colColours=hdr)
-		AX4.table(cellText=empty, colLabels=['Projection to the end of the season'], bbox=[0.2, 0.24-k, 0.7, 0.12], colColours=hdr)
-		AX4.table(cellText=empty, colLabels=['Probability at the end of season'], bbox=[0.2, -0.13-k, 0.7, 0.12 ], colColours=hdr)
+		AX4.table(
+			cellText=empty, 
+			colLabels=['Seasonal Analysis'], 
+			bbox=[0.2, 0.68-k, 0.7, 0.12 ], 
+			colColours=hdr
+		)
+		AX4.table(
+			cellText=empty, 
+			colLabels=['Assessment at current dekad'], 
+			bbox=[0.2, 0.46-k, 0.7, 0.12 ], 
+			colColours=hdr
+		)
+		AX4.table(
+			cellText=empty, 
+			colLabels=['Projection to the end of the season'], 
+			bbox=[0.2, 0.24-k, 0.7, 0.12], 
+			colColours=hdr
+		)
+		AX4.table(
+			cellText=empty, 
+			colLabels=['Probability at the end of season'], 
+			bbox=[0.2, -0.13-k, 0.7, 0.12 ], 
+			colColours=hdr
+		)
 
 		# Analog years table
 		label = 'Top 1', 'Top 2', 'Top 3'
 		title = ['Closest Analog Years']
 		data = [angs[1]], [angs[2]], [angs[3]]
 		box = [0.1, 0.82-k, 0.8, 0.18]
-		AX4.table(rowLabels=label, colLabels=title, cellText=data, cellLoc='center', bbox=box, colColours=hdr, rowColours=hdr*3)
+		AX4.table(
+			rowLabels=label, 
+			colLabels=title, 
+			cellText=data, 
+			cellLoc='center', 
+			bbox=box, 
+			colColours=hdr, 
+			rowColours=hdr*3
+		)
 
 		# Climatology table
 		label = 'Average', 'Deviation', 'Median'
 		data = [aavg, avg], [astd, std], [amed, med]
-		AX4.table(rowLabels=label, colLabels=col, cellText=data, cellLoc='center', bbox=[0.2, 0.60-k, 0.7, 0.15], rowColours=hdr*3)
+		AX4.table(
+			rowLabels=label, 
+			colLabels=col, 
+			cellText=data, 
+			cellLoc='center', 
+			bbox=[0.2, 0.60-k, 0.7, 0.15], 
+			rowColours=hdr*3
+		)
 
 		# Assessments table
 		label = 'Total', 'LTA Value', 'LTA Pct'
 		data = [atotal, etotal], [aslta, cslta], [altapct, cltapct]
-		AX4.table(rowLabels=label, colLabels=col, cellText=data, cellLoc='center', bbox=[0.2, 0.38-k, 0.7, 0.15], rowColours=hdr*3)
+		AX4.table(
+			rowLabels=label, 
+			colLabels=col, 
+			cellText=data, 
+			cellLoc='center', 
+			bbox=[0.2, 0.38-k, 0.7, 0.15], 
+			rowColours=hdr*3
+		)
 
 		# Projection table
 		label = 'Average', 'Deviation', 'Median', '33rd. Pctl', '67th. Pctl', 'LTA Value', 'Ending LTA'
 		data = [eavg, cavg], [estd, cstd], [emed, cmed], [ethrd, cthrd], [esxth, csxth], [aavg, avg], [aepct, cepct]
-		AX4.table(rowLabels=label, colLabels=col, cellText=data, cellLoc='center', bbox=[0.2, 0.01-k, 0.7, 0.3], rowColours=hdr*7)
+		AX4.table(
+			rowLabels=label, 
+			colLabels=col, 
+			cellText=data, 
+			cellLoc='center', 
+			bbox=[0.2, 0.01-k, 0.7, 0.3], 
+			rowColours=hdr*7
+		)
 
 		# Outlook table
 		label = 'Above normal', 'Normal', 'Below normal'
 		data = [AA, CA], [AN, CN], [AB, CB]
-		AX4.table(rowLabels=label, colLabels=col, cellText=data, cellLoc='center', bbox=[0.2, -0.21-k, 0.7, 0.15], rowColours=hdr*3)
-		fig.align_labels()
+		AX4.table(
+			rowLabels=label, 
+			colLabels=col, 
+			cellText=data, cellLoc='center', 
+			bbox=[0.2, -0.21-k, 0.7, 0.15], 
+			rowColours=hdr*3
+		)
 
 		# Display and savefile conditions
+		fig.align_labels()
 		if self.savefile:
 			fig.savefig('{}/{}_rep'.format(dirpath, iD), format='png')
 		
@@ -441,7 +578,7 @@ class smpgTool():
 #=====================================================================
 	def reports(self, _iD, _lta, _actyr, _acms, _asts, _cacms, _ensb, 
 	            _ests, _angs, _aok, _eok, _aasts, _cests, _altm,
-				_eltm, dirpath):
+				_eltm, _anlist, dirpath):
 
 		# Setting up from-behind season window
 		ssn, deks = season(self.fst_dk, self.lst_dk, deks=True)
@@ -463,7 +600,8 @@ class smpgTool():
 			cests = _cests[place]
 			altm = _altm[place]
 			eltm = _eltm[place]
+			anlist = _anlist[place]
 			self.plotter(deks, place, iD, lta, yr, ssn, acms, asts, 
 			cacms, ensb, ests, angs, aok, eok, aasts, cests, altm, 
-			eltm, dirpath)
+			eltm, anlist, dirpath)
 #=====================================================================

@@ -9,16 +9,6 @@ from .utils import *
 from .core import smpgTool
 from ttk import Combobox
 
-'''
-script_dir = os.path.dirname(__file__)
-rel_path = 'image/'
-abs_file_path = os.path.join(script_dir, rel_path)
-current_file = 'background.gif'
-current_file2 = 'icon.gif'
-file1 = abs_file_path + current_file
-file2 = abs_file_path + current_file2
-'''
-
 class App():
     def __init__(self, master):
 
@@ -228,7 +218,7 @@ class App():
             # Generating reports   
             SMPG.reports(IDs, average, status_table, aa_table, ca_stats, actual_accum, 
             ae_table, ae_stats, ranking, ae_otlk, ce_otlk, aa_stats, ce_stats, ang_sts,
-            clm_sts, dirpath=Dir) 
+            clm_sts, analogs, dirpath=Dir) 
 
             # Success message
             tk.messagebox.showinfo('Status', 'Reports computed and saved')
@@ -241,10 +231,6 @@ class App():
             tk.messagebox.showerror('Error', 
             'Set season exceeds the 36-dekad boundaries')
             return
-
-        # Success message
-        tk.messagebox.showinfo('Status', 'Reports computed and saved')
-
     #=====================================================================================================
     def Help(self, master):
         '''Opens up an 'about' window to show some
