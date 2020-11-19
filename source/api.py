@@ -221,15 +221,22 @@ class App():
             clm_sts, analogs, dirpath=Dir) 
 
             # Success message
-            tk.messagebox.showinfo('Status', 'Reports computed and saved')
+            if self.V9.get():
+                return
+                
+            return tk.messagebox.showinfo('Status', 'Reports computed and saved')
 
         except IndexError:
-            tk.messagebox.showerror('Error', 
-            'There is still no rainfall data in the current year for the specified season')
+            tk.messagebox.showerror(
+                'Error', 
+                'There is still no rainfall data in the current year for the specified season'
+            )
             return
         except ValueError:
-            tk.messagebox.showerror('Error', 
-            'Set season exceeds the 36-dekad boundaries')
+            tk.messagebox.showerror(
+                'Error', 
+                'Set season exceeds the 36-dekad boundaries'
+                )
             return
     #=====================================================================================================
     def Help(self, master):

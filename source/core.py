@@ -573,8 +573,8 @@ class smpgTool():
 		if self.savefile:
 			fig.savefig('{}/{}_rep'.format(dirpath, iD), format='png')
 		
-		if self.showfile:
-			plt.show()
+		#if self.showfile:
+			#plt.show()
 #=====================================================================
 	def reports(self, _iD, _lta, _actyr, _acms, _asts, _cacms, _ensb, 
 	            _ests, _angs, _aok, _eok, _aasts, _cests, _altm,
@@ -604,4 +604,6 @@ class smpgTool():
 			self.plotter(deks, place, iD, lta, yr, ssn, acms, asts, 
 			cacms, ensb, ests, angs, aok, eok, aasts, cests, altm, 
 			eltm, anlist, dirpath)
+		if self.showfile:
+			plt.show()
 #=====================================================================
