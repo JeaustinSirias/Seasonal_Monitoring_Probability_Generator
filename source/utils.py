@@ -9,6 +9,8 @@ from scipy.stats import rankdata
 #============================================================
 year_format = lambda number: int(number // 100)
 #============================================================
+prob = lambda value, y: round((value / y) * 100)
+#============================================================
 def season(fst_dek, lst_dek, deks=False):
 	'''Computes the seasonal window params to 
 	simplify coding in the core module.
@@ -46,7 +48,12 @@ def read(csv_file):
 	:return: init and end year, raw data and IDs
 	'''
 	# Read raw dataset as Pandas dataframe
-	data = pandas.read_csv(csv_file, header=None, dtype={0:object})
+	data = pandas.read_csv(
+		csv_file, 
+		header=None, 
+		dtype={0:object},
+		keep_default_na=False
+	)
 
 	# Choose first year
 	fst_yr = year_format(int(data.loc[0][1]))
@@ -54,23 +61,33 @@ def read(csv_file):
 	# Filter locations ID/names
 	ID = list(data[0].loc[1:])
 	
-	# Choose last year and raw data for each place
-	#if data.loc[0].iloc[-1] == 'scenario':
-	#	lst_yr = year_format(data.loc[0].iloc[-2])
-	#	scenarios = list(data.iloc[1:,-1:])
-	#	raw_data = []
-	#	for i in range(len(ID)):
-	#		location = list(data.loc[i+1][1:-1])
-	#		raw_data.append(location)
-	#	return fst_yr, lst_yr, ID, raw_data, scenarios
-	#else:
-	lst_yr = year_format(int(data.loc[0].iloc[-1]))
-	raw_data = []
-	for i in range(len(ID)):
-		location = list(data.loc[i+1][1:])
-		raw_data.append(location)
+	# if there are scenarios:
+	if data.loc[0].iloc[-1] == 'scenario':
+		lst_yr = year_format(data.loc[0].iloc[-2])
 
-	return fst_yr, lst_yr, ID, raw_data
+		# scenarios
+		scenarios = data.iloc[1:,-1:].replace([''], [-1])
+		scenarios = numpy.array(scenarios, dtype=int)
+		scenarios = scenarios.transpose()[0]
+
+		# Dataset
+		raw_data = []
+		for i in range(len(ID)):
+			location = list(data.loc[i+1][1:-1])
+			raw_data.append(location)
+		raw_data = numpy.array(raw_data, dtype=float)
+
+		return fst_yr, lst_yr, ID, raw_data, scenarios
+	#if not:
+	else:
+		lst_yr = year_format(int(data.loc[0].iloc[-1]))
+		raw_data = []
+		for i in range(len(ID)):
+			location = list(data.loc[i+1][1:])
+			raw_data.append(location)
+		raw_data = numpy.array(raw_data, dtype=float)
+
+		return fst_yr, lst_yr, ID, raw_data, []
 #============================================================
 def spawn_deks():
 	'''
@@ -86,7 +103,7 @@ def spawn_deks():
 		   '1-Sep': 24, '2-Sep': 25,'3-Sep': 26, '1-Oct': 27, 
 		   '2-Oct': 28, '3-Oct': 29,'1-Nov': 30, '2-Nov': 31, 
 		   '3-Nov': 32, '1-Dec': 33,'2-Dec': 34, '3-Dec': 35
-		   }
+	}
 
 	return DEK
 #============================================================
@@ -99,7 +116,7 @@ def sdE(past_table, present_table):
 	'''
 
 	x, y = numpy.array(present_table).shape
-	dim1, dim2, dim3 = numpy.array(past_table).shape
+	dim2= numpy.array(past_table).shape[1]
 	SDE = []
 	# Compute diff by dekad, squared. 
 	for place in range(x):
@@ -120,7 +137,7 @@ def ssE(past_accums, present_accums):
 	'''
 	# Get the difference squared 
 	x, y = numpy.array(present_accums).shape
-	dim1, dim2, dim3 = numpy.array(past_accums).shape
+	dim2 = numpy.array(past_accums).shape[1]
 	SSE = []
 	rank = []
 
@@ -150,7 +167,7 @@ def dek_list():
 		   '2-Sep', '3-Sep', '1-Oct', '2-Oct', '3-Oct', 
 		   '1-Nov', '2-Nov', '3-Nov', '1-Dec', '2-Dec', 
 		   '3-Dec'
-		   ]
+	]
 
 	return DEK
 #============================================================
@@ -205,20 +222,18 @@ def outlook(percs, ensemble):
 	#x, y, z = numpy.array(ensemble).shape
 	x = len(percs)
 	y = len(ensemble[0])
-	prob = lambda value: round((value / y) * 100)
 	for place in range(x):
 		row = numpy.array(ensemble[place]).transpose()[-1]
 		HI, LO = percs[place]
 		A, N, B = 0, 0, 0
-		for yr in range(y):
-			VALUE = row[yr]
-			if VALUE > HI: 
+		for yr in row:
+			if yr > HI: 
 				A += 1
-			elif VALUE < LO: 
+			elif yr < LO: 
 				B += 1
-			elif HI >= VALUE >= LO:
+			elif HI >= yr >= LO:
 				N += 1
-		outlook.append((prob(A), prob(N), prob(B)))
+		outlook.append((prob(A, y), prob(N, y), prob(B, y)))
 
 	return outlook
 #============================================================
@@ -233,7 +248,7 @@ def export_analogs(ID, data, dirpath):
 	if dirpath == None:
 		return
 
-	# Sorting dictionary by key ascending key order
+	# Sorting dictionary by ascending key order
 	size = range(len(ID))
 	data = [dict(sorted(data[i].items())) for i in size]
 
@@ -278,7 +293,7 @@ def export_summary(iD, ca_stats, ce_stats, ltm_stats, dirpath):
 		'Ensemble_Med',
 		'E_LTA_Value', 
 		'E_LTA_pct'
-		]
+	]
 	sts1 = []
 	sts2 = []
 	nums = [1, 2, 3, 4, 5, 8, 9]
@@ -331,7 +346,7 @@ def export_stats(iD, ltm_stats, outlook, dirpath):
 	        'Above', 
 			'Normal', 
 			'Below'
-		   ]
+	]
 	df = pandas.DataFrame(data=data, index=iD, columns=cols)
 	df.to_csv('{dir}/summary.csv'.format(dir = dirpath))	
 #============================================================
@@ -359,6 +374,14 @@ def lt_stats(act_accums, sstats, estats):
 	return lt_sts
 #============================================================
 def filepath(rel_path, *filenames):
+	'''A method to get the absolute path for a file 
+	directory. It solves the relative path problem when
+	a .py asks for a file that is not in its directory.
+
+	:param rel_path: the relative path i.e, '/images/'
+	:param *filenames: A tuple with the files names
+	:return: a string with the absolute path of a file
+	'''
 	path = os.path.dirname(__file__)
 	abspath = os.path.join(path, rel_path)
 	paths = [abspath + files for files in filenames]
@@ -366,3 +389,20 @@ def filepath(rel_path, *filenames):
 #============================================================
 #============================================================
 
+
+
+'''
+fst_yr, lst_yr, ID, raw_data, scenarios = read('sample2.csv')
+raw_data = numpy.array(raw_data)
+raw_data=raw_data.astype(float)
+print(int('scenario'))
+'''
+
+'''
+data = pandas.read_csv('sample2.csv', header=None, dtype={0:object}, keep_default_na=False)
+scenarios = data.iloc[1:,-1:].replace([''], [-1])
+#scenarios = numpy.array(scenarios, dtype=int).transpose()[0]
+
+#scn = data['scenario'].head()
+print(scenarios)
+'''
