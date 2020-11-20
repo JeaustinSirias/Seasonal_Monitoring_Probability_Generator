@@ -20,6 +20,11 @@ install: # Install and run
 	python3 setup.py install \
 	&& runfile
 
+container: # Container
+	sudo docker build --tag smpg_project . \
+	&& xhost + \
+	&& sudo docker run -it -e DISPLAY=$(DISPLAY) -v /tmp/.X11-unix:/tmp/.X11-unix smpg_project
+
 unittest:
 	
 

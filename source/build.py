@@ -5,7 +5,7 @@
 """build: provides entry point main()."""
  
  
-__version__ = "1.2.0"
+__version__ = "1.2.5"
  
 import tkinter
 from .api import App

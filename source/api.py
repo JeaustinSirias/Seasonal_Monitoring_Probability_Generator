@@ -25,7 +25,7 @@ class App():
         # MASTER FRAME
         frame = tk.Frame(master)
         frame.pack()
-        master.title('SMPG Project v1.2.0')
+        master.title('SMPG Project v1.2.5')
 
         # WINDOWED LOGO
         self.logo = tk.PhotoImage(file=icon)
@@ -358,7 +358,7 @@ class App():
         window.iconphoto(True, self.logo)
 
         # LABELS
-        title = tk.Label(window, text='Seasonal Monitoring & Probability\nGenerator (SMPG) Project v1.2.0', 
+        title = tk.Label(window, text='Seasonal Monitoring & Probability\nGenerator (SMPG) Project v1.2.5', 
               font=('Arial', 13), justify=tk.CENTER)
         version = tk.Label(window, text = 'Software under a MIT license\nCopyright (c) 2020', 
                 font = ('Arial', 12), justify=tk.CENTER)
