@@ -11,7 +11,7 @@ setup(
     name='SMPG-Project',
     packages=['test', 'source', 'source.image'],
     entry_points={'console_scripts': ['runfile = source.build:main']},
-    version='1.2.0',
+    version='1.2.5',
     description='This is a rainfall forecast generator & analysis tool',
     long_description=readme,
     author='Jeaustin Sirias Chacón',
