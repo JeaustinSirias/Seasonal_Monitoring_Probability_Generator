@@ -4,10 +4,11 @@ This is an **academic tool** to support climatological researches for [Geophysic
 ![user_interfase](https://github.com/JeaustinSirias/Seasonal_Monitoring_Probability_Generator/blob/main/docs/graphic_user_interfase.png)
 
 ## Features
-* Build your own custon rainfall scenarios by providing reference values for each station, location or polygon
+* Build your own custom rainfall scenarios by providing reference values for each station, location or polygon
 * Analize your region by providing a CSV file with past years rainfall observed data
 * Dekadal analysis and forecast for custom seasons, including *from-behind* analyisis
 * Save your own statistics by including analog years and multiple summaries.
+* Generate, display and save high quality visual PNG rainfall status reports for your area. 
 
 ## Building instructions
 This software is designed to be a desktop application. Installation is not needed unlesss you decide to work with its Python package. An you can find the lastest stable release [here](https://github.com/JeaustinSirias/Seasonal_Monitoring_Probability_Generator/releases/tag/v1.2.0).
