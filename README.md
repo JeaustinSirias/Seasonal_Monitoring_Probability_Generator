@@ -11,7 +11,7 @@ This is an **academic tool** to support climatological researches for [Geophysic
 * Generate, display and save high quality visual PNG rainfall status reports for your area. 
 
 ## Building instructions
-This software is designed to be a desktop application. Installation is not needed unlesss you decide to work with its Python package. An you can find the lastest stable release [here](https://github.com/JeaustinSirias/Seasonal_Monitoring_Probability_Generator/releases/tag/v1.2.0).
+This software is designed to be a desktop application. Installation is not needed unless you decide to work with its Python package. You can find the lastest stable release [here](https://github.com/JeaustinSirias/Seasonal_Monitoring_Probability_Generator/releases/tag/v1.2.0) por Windows platforms.
 
 
 **1.** First clone this repository in a local directory inside your computer by using the next instruction in your command window:
