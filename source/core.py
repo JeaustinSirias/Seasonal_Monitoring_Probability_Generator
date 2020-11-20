@@ -4,7 +4,7 @@
 #
 import numpy 
 import matplotlib.pyplot as plt
-from .utils import season, Stats, dek_list
+from .utils import season, Stats, dek_list, prob
 from scipy.stats import rankdata
 from collections import defaultdict
 from matplotlib.gridspec import GridSpec
@@ -14,7 +14,7 @@ class smpgTool():
 	build the SMPG.
 	'''
 	def __init__(self, fst_yr, lst_yr, fst_cm, lst_cm, fst_dk, 
-				 lst_dk, places_num, analogs_num, savefile,
+				 lst_dk, scn, places_num, analogs_num, savefile,
 				 showfile, fct):
 
 		self.fst_yr = fst_yr
@@ -23,6 +23,7 @@ class smpgTool():
 		self.lst_cm = lst_cm
 		self.fst_dk = fst_dk
 		self.lst_dk = lst_dk
+		self.scenario = scn
 		self.an_num = analogs_num
 		self.yrs = range(fst_yr, lst_yr)
 		self.SEASON, self.START = season(fst_dk, lst_dk)
@@ -177,6 +178,11 @@ class smpgTool():
 		return seasonal_accumulations, current_accumulations, Dict
 #=====================================================================
 	def seasonal_ensemble(self, seasonal_table, present_accum):
+		'''
+		:param:
+		:param:
+		:return:
+		'''
 
 		dim2 = len(present_accum[0])
 		dim3 = len(seasonal_table[0][0])
@@ -227,9 +233,12 @@ class smpgTool():
 		return ranking, analogs
 #=====================================================================
 	def analog_accumulation(self, analogs, accum_dict):
-		'''
-		Computes seasonal accumulations, but considering
+		'''Computes seasonal accumulations, but considering
 		only the analog years amount chosen by the user.
+
+		:param:
+		:param:
+		:return:
 		'''
 		vector = []
 		for place in range(self.places_num):
@@ -241,17 +250,48 @@ class smpgTool():
 		return vector, stats, percs
 #=====================================================================
 	def climatological_accumulation(self, accum_dict):
-		'''
-		Computes seasonal accumulations, but considering
+		'''Computes seasonal accumulations, but considering
 		the climatological window chosen by user.
+
+		:param:
+		:return:
 		'''
 		vector = []
 		for place in range(self.places_num):
 			v = [accum_dict[place][year] for year in self.clim_wind]
 			vector.append(v)
-
 		stats, percs = Stats(vector, extrapercs=True)
-		return vector, stats, percs
+
+		return stats, percs
+#=====================================================================
+	def scenario_analysis(self, values, ensemble):
+		'''A method to compute the analysis for custom
+		scenarios according to input rainfall values for
+		each place from the dataset.
+
+		:param values: a vector with custom rainfall values
+		:param ensemble: the ensemble array (analog or climatological)
+		:return: a vector of tuples with the HI and LO prob of being
+		'''
+		# Initiates the statistical vector
+		stats = []
+		size = len(ensemble[0])
+		# Getting the statistic for the custom scenarios
+		for place in range(self.places_num):
+			row = numpy.array(ensemble[place]).transpose()[-1]
+			value = values[place]
+			HI, LO = 0, 0
+			if value == -1:
+				stats.append(None)
+				continue
+			for year in row:
+				if year >= value:
+					HI += 1
+				else:
+					LO += 1
+			stats.append((prob(HI, size), prob(LO, size)))
+	
+		return stats
 #=====================================================================
 	def analog_ensemble(self, analogs, ensemble):
 		'''
@@ -279,9 +319,9 @@ class smpgTool():
 #=====================================================================
 	def plotter(self, deks, num, iD, LTA, actyr, ssn, acms, asts, 
 				cacms, ensb, ests, angs, aok, eok, aasts, cests,
-				saltm, celtm, anlist, dirpath):
+				saltm, celtm, anlist, ascn, cscn, dirpath):
 		'''An iterable method designed to output a single 
-		report
+		report.
 
 		:param deks: An array with the seasonal dekads
 		:param num: figure number
@@ -302,6 +342,8 @@ class smpgTool():
 		:param saltm: seasonal LTM statistics
 		:param celtm: climatological LTM statistics
 		:param anlist: analog years list (ordinally ranked)
+		:param ascn: analog scenario statistic
+		:param cscn: climatological scenario statistic
 		:param Dir: Directory where the report will be saved
 		''' 
 		# Frequently used variables
@@ -445,22 +487,110 @@ class smpgTool():
 				lw=5, 
 				label='Forecast'
 			)
-		AX2.plot(cx_axis, cacms, color='b', lw=5, label=self.lst_yr)
+		AX2.plot(
+			cx_axis, 
+			cacms, 
+			color='b', 
+			lw=5, 
+			label=self.lst_yr
+		)
 	
 		# AX3 plot
 		for analogs in range(self.an_num): AX3.plot(sx_axis, ensb[analogs])
-		AX3.plot(sx_axis, eltm, '--', color='k', lw=2, label='ELTM')
-		AX3.plot(sx_axis, ltm, color='r', lw=4, label='LTM')
-		AX3.fill_between(sx_axis, h, l, color='lightblue', label='120-80%')
-		AX3.plot(sx_end, thrd, marker='s', markersize=7, color='k', label='33rd pct')
-		AX3.plot(sx_end, sxth, marker='s', markersize=7, color='k', label='67th pct')
-		AX3.plot(sx_end, mu, marker='^', markersize=7, color='green', label='Avg+Std')
-		AX3.plot(sx_end, sgm, marker='^', markersize=7, color='green', label='Avg-Std')
-		AX3.plot(cx_axis, cacms, color='b', lw=4, label=self.lst_yr)
-		AX3.plot(sx_end, ethrd, marker='s', markersize=7, color='blue', label='E_33rd pct')
-		AX3.plot(sx_end, esxth, marker='s', markersize=7, color='blue', label='E_67th pct')
-		AX3.plot(sx_end, emu, marker='^', markersize=7, color='orange', label='E_Avg+Std')
-		AX3.plot(sx_end, esgm, marker='^', markersize=7, color='orange', label='E_Avg-Std')
+		AX3.plot(
+			sx_axis, 
+			ltm, 
+			color='r', 
+			lw=4, 
+			label='LTM'
+		)
+		AX3.plot(
+			sx_axis, 
+			eltm, 
+			'--', 
+			color='k', 
+			lw=2.5, 
+			label=
+			'ELTM'
+		)
+		AX3.fill_between(
+			sx_axis, 
+			h, 
+			l, 
+			color='lightblue', 
+			label='120-80%'
+		)
+		AX3.plot(
+			sx_end, 
+			thrd, 
+			marker='s', 
+			markersize=7, 
+			color='k', 
+			label='33rd pct'
+		)
+		AX3.plot(
+			sx_end, 
+			sxth, 
+			marker='s', 
+			markersize=7, 
+			color='k', 
+			label='67th pct'
+		)
+		AX3.plot(
+			sx_end, 
+			mu, 
+			marker='^', 
+			markersize=7, 
+			color='green', 
+			label='Avg+Std'
+		)
+		AX3.plot(
+			sx_end, 
+			sgm, 
+			marker='^', 
+			markersize=7, 
+			color='green', 
+			label='Avg-Std'
+		)
+		AX3.plot(
+			cx_axis, 
+			cacms, 
+			color='b', 
+			lw=4, 
+			label=self.lst_yr
+		)
+		AX3.plot(
+			sx_end, 
+			ethrd, 
+			marker='s', 
+			markersize=7, 
+			color='blue', 
+			label='E_33rd pct'
+		)
+		AX3.plot(
+			sx_end, 
+			esxth, 
+			marker='s', 
+			markersize=7, 
+			color='blue', 
+			label='E_67th pct'
+		)
+		AX3.plot(
+			sx_end, 
+			emu, 
+			marker='^', 
+			markersize=7, 
+			color='orange', 
+			label='E_Avg+Std'
+		)
+		AX3.plot(
+			sx_end, 
+			esgm, 
+			marker='^', 
+			markersize=7, 
+			color='orange', 
+			label='E_Avg-Std'
+		)
 
 		# Legends
 		AX1.legend()
@@ -505,21 +635,42 @@ class smpgTool():
 			bbox=[0.2, -0.13-k, 0.7, 0.12 ], 
 			colColours=hdr
 		)
+		if not ascn is None:
+		# scenario analysis table
+			AX4.table(
+				cellText=empty,
+				colLabels=['Probability of %s mm of rainfall' %self.scenario[num]], 
+				bbox=[0.2, 0.9-k, 0.7, 0.12 ], 
+				colColours=hdr		
+			)
+			#scenarios
+			_aa, _ab = ascn
+			_ca, _cb = cscn
+			label = 'Above value', 'Below value'
+			data = [_aa, _ca], [_ab, _cb]
+			AX4.table(
+				rowLabels=label, 
+				colLabels=col, 
+				cellText=data, cellLoc='center', 
+				bbox=[0.2, 0.82-k, 0.7, 0.15], 
+				rowColours=hdr*2
+			)
 
-		# Analog years table
-		label = 'Top 1', 'Top 2', 'Top 3'
-		title = ['Closest Analog Years']
-		data = [angs[1]], [angs[2]], [angs[3]]
-		box = [0.1, 0.82-k, 0.8, 0.18]
-		AX4.table(
-			rowLabels=label, 
-			colLabels=title, 
-			cellText=data, 
-			cellLoc='center', 
-			bbox=box, 
-			colColours=hdr, 
-			rowColours=hdr*3
-		)
+		else:
+			# Analog years table
+			label = 'Top 1', 'Top 2', 'Top 3'
+			title = ['Closest Analog Years']
+			data = [angs[1]], [angs[2]], [angs[3]]
+			box = [0.1, 0.82-k, 0.8, 0.18]
+			AX4.table(
+				rowLabels=label, 
+				colLabels=title, 
+				cellText=data, 
+				cellLoc='center', 
+				bbox=box, 
+				colColours=hdr, 
+				rowColours=hdr*3
+			)
 
 		# Climatology table
 		label = 'Average', 'Deviation', 'Median'
@@ -534,7 +685,7 @@ class smpgTool():
 		)
 
 		# Assessments table
-		label = 'Total', 'LTA Value', 'LTA Pct'
+		label = 'Total', 'LTM Value', 'LTM Pct.'
 		data = [atotal, etotal], [aslta, cslta], [altapct, cltapct]
 		AX4.table(
 			rowLabels=label, 
@@ -546,8 +697,24 @@ class smpgTool():
 		)
 
 		# Projection table
-		label = 'Average', 'Deviation', 'Median', '33rd. Pctl', '67th. Pctl', 'LTA Value', 'Ending LTA'
-		data = [eavg, cavg], [estd, cstd], [emed, cmed], [ethrd, cthrd], [esxth, csxth], [aavg, avg], [aepct, cepct]
+		label = (
+			'Average', 
+			'Deviation', 
+			'Median', 
+			'33rd. Pctl.', 
+			'67th. Pctl.', 
+			'LTM Value', 
+			'End of LTM'
+		)
+		data = (
+			[eavg, cavg], 
+			[estd, cstd], 
+			[emed, cmed], 
+			[ethrd, cthrd], 
+			[esxth, csxth], 
+			[aavg, avg], 
+			[aepct, cepct]
+		)
 		AX4.table(
 			rowLabels=label, 
 			colLabels=col, 
@@ -572,13 +739,10 @@ class smpgTool():
 		fig.align_labels()
 		if self.savefile:
 			fig.savefig('{}/{}_rep'.format(dirpath, iD), format='png')
-		
-		#if self.showfile:
-			#plt.show()
 #=====================================================================
 	def reports(self, _iD, _lta, _actyr, _acms, _asts, _cacms, _ensb, 
 	            _ests, _angs, _aok, _eok, _aasts, _cests, _altm,
-				_eltm, _anlist, dirpath):
+				_eltm, _anlist, _ascn, _cscn, dirpath):
 
 		# Setting up from-behind season window
 		ssn, deks = season(self.fst_dk, self.lst_dk, deks=True)
@@ -601,9 +765,11 @@ class smpgTool():
 			altm = _altm[place]
 			eltm = _eltm[place]
 			anlist = _anlist[place]
+			ascn = _ascn[place]
+			cscn = _cscn[place]
 			self.plotter(deks, place, iD, lta, yr, ssn, acms, asts, 
 			cacms, ensb, ests, angs, aok, eok, aasts, cests, altm, 
-			eltm, anlist, dirpath)
+			eltm, anlist, ascn, cscn, dirpath)
 		if self.showfile:
 			plt.show()
 #=====================================================================
