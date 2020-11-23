@@ -282,7 +282,7 @@ class smpgTool():
 			value = values[place]
 			HI, LO = 0, 0
 			if value == -1:
-				stats.append(None)
+				stats.append((None, None))
 				continue
 			for year in row:
 				if year >= value:
@@ -635,7 +635,8 @@ class smpgTool():
 			bbox=[0.2, -0.13-k, 0.7, 0.12 ], 
 			colColours=hdr
 		)
-		if not ascn is None:
+		#if not ascn is None:
+		if ascn != (None, None):
 		# scenario analysis table
 			AX4.table(
 				cellText=empty,

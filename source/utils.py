@@ -325,27 +325,32 @@ def export_summary(iD, ca_stats, ce_stats, ltm_stats, dirpath):
 	df = pandas.DataFrame(data=data, index=iD, columns=cols)
 	df.to_csv('{dir}/statistics.csv'.format(dir = dirpath))	
 #============================================================
-def export_stats(iD, ltm_stats, outlook, dirpath):
+def export_stats(iD, ltm_stats, outlook, scenario, dirpath):
 	'''Computes a summary of probabilities based on LTA
 	percentages and the probability at the end of season.
 
 	:param ltm_stats: climatological long term stats 
 	:param outlook: Probability of rainfall at the end.
+	:param scenario: Scenario tuples for each place
 	:param dirpath: file directory to save CSV file
 	:return: nothing
 	'''
 	if dirpath == None:
 		return
 	
+	# Data
+	Hi, Lo = numpy.array(scenario).transpose()
 	PCT, EPCT = numpy.array(ltm_stats).transpose()[2:]
 	AN, NN, BN = numpy.array(outlook).transpose()
-	data = numpy.array([PCT, EPCT, AN, NN, BN]).transpose()
+	data = numpy.array([PCT, EPCT, AN, NN, BN, Hi, Lo]).transpose()
 	cols = [
 		    'pctofavgatdek', 
 			'pctofavgatEOS', 
 	        'Above', 
 			'Normal', 
-			'Below'
+			'Below',
+			'S_Above',
+			'S_Below'
 	]
 	df = pandas.DataFrame(data=data, index=iD, columns=cols)
 	df.to_csv('{dir}/summary.csv'.format(dir = dirpath))	

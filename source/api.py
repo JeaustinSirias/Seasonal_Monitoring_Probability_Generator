@@ -205,7 +205,6 @@ class App():
                 tk.messagebox.showerror('Error', 'something is wrong with this dataset. Cannot be computed.')
                 return
 
-        
         # Updating class attributes 
         yrs = tuple(range(fst_yr, lst_yr))
         yrs_num = tuple(range(1, 1+len(yrs)))
@@ -312,13 +311,13 @@ class App():
                 an_scns = SMPG.scenario_analysis(scenario, ae_table)
                 clim_scns = SMPG.scenario_analysis(scenario, ce_table)
             else:
-                an_scns = [None]*SIZE
-                clim_scns = [None]*SIZE
+                an_scns = [(None, None)]*SIZE
+                clim_scns = an_scns
 
             # Exporting CSV tables
             export_analogs(IDs, ranking, dirpath=Dir)
             export_summary(IDs, ca_stats, ce_stats, clm_sts, dirpath=Dir)
-            export_stats(IDs, clm_sts, ce_otlk, dirpath=Dir)
+            export_stats(IDs, clm_sts, ce_otlk, clim_scns, dirpath=Dir)
 
             # Generating reports   
             SMPG.reports(IDs, average, status_table, aa_table, ca_stats, actual_accum, 
