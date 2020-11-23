@@ -739,7 +739,7 @@ class smpgTool():
 		# Display and savefile conditions
 		fig.align_labels()
 		if self.savefile:
-			fig.savefig('{}/{}_rep'.format(dirpath, iD), format='png')
+			fig.savefig('{}/{}_rep.png'.format(dirpath, iD))
 #=====================================================================
 	def reports(self, _iD, _lta, _actyr, _acms, _asts, _cacms, _ensb, 
 	            _ests, _angs, _aok, _eok, _aasts, _cests, _altm,
