@@ -1,21 +1,122 @@
-MIT License
+ LICENCIA DEL PROGRAMA DE CÓMPUTO
+SEASONAL MONITORING AND PROBABILITY GENERATOR
 
-Copyright (c) 2020 JEASTIN SIRIAS
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+Versión del documento de licencia  02 de setiembre de 2020
+Derechos reservados © 2020, Universidad de Costa Rica (en adelante, UCR), Vicerrectoría de Investigación, Unidad de Gestión y Transferencia del Conocimiento para la Innovación (en adelante, PROINNOVA)
+http://www.proinnova.ucr.ac.cr/es/inicio/
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+La copia, distribución y adaptación de  este documento de licencia están permitidas, bajo la responsabilidad de los terceros que deseen emplearlo. Para su adaptación a un uso en otro programa de cómputo de la UCR, favor contactar a PROINNOVA.
+
+INTRODUCCIÓN
+Este documento ha sido creado a solicitud del Centro de Informática de la UCR como ente  a cargo de las tecnologías de información y comunicación de la Universidad, para su utilización o el de otras instancias universitarias que generen productos de software. En este caso, se extiende el documento de licencia a solicitud del Centro de Investigaciones Geofísicas (CIGEFI).
+
+    1. PROGRAMA SEASONAL MONITORING AND PROBABILITY GENERATOR (SMPG TOOL)
+El programa de computación SMPG TOOL en adelante el software fue desarrollado por el CIGEFI y el Climate Hazards Center (CHC) de la Universidad de California Santa Barbara en conjunto con el Famine Early Warning Systems Network (Fews Net), en el marco de una alianza para proveer a otras organizaciones de una herramienta tecnológica que les permita sistematizar datos meteorológicos desde sus regiones. Así mismo, obtener resultados para fines de referenciación, investigación, divulgación o como sistema de monitoreo y planificación en tópicos de agroclimatología, nutrición, comercio, necesidades de medio de vida o  seguridad social, entre otras .
+
+SMPG TOOL nace gracias a la creación de la hoja electrónica generada por CHC, y las mejoras de usabilidad de interfaz generadas por el CIGEFi.
+
+La licencia que se otorga sobre el software es parcial, en amparo de la  Ley sobre Derechos de Autor y Derechos Conexos  No. 6683 de Costa Rica, así como de los tratados internacionales de propiedad intelectual de los que el país es miembro. 
+
+El software se resguarda en Costa Rica mediante la forma de protección de propiedad intelectual de derechos de autor, donde la UCR es la cotitular de los derechos patrimoniales y ejerce la defensa de los derechos morales del personal universitario involucrado y CHC de la misma forma, ejerce la cotitularidad y defensa de los derechos morales de su personal.  
+
+
+Los autores a citar son: 
+
+De parte de  UCR:
+
+Hugo Hidalgo León, investigador, CIGEFI, cigefi@ucr.ac.cr
+Eric Alfaro Martínez, investigador, Escuela de Física,  erick.alfaro@ucr.ac.cr. 
+Alberto Serrano Pacheco, Escuela de Ingeniería Civil, alberto.serrano@ucr.ac.cr.
+Jeaustin Sirias Chacón,  estudiante colaborador, Escuela de Ingeniería Eléctrica, cigefi@ucr.ac.cr.
+
+De parte de CHC:
+
+ Diego Pedreros,  Geografo, United States Geological Survey (USGS), pedreros@usgs.gov, diego@geog.ucs.beu
+Greg Husak, Climate Hazards Center (CHC), UCSB husak@geog.ucsb.edu
+Chris Funk, Climate Hazards Center (CHC), UCSB chris@geog.ucsb.edu
+Dirba Korecha, Climate Hazards Center (CHC), UCSB, diriba.korecha@gmail.com 
+Tamuka Madgazire, Climate Hazards Center (CHC), UCSB, tamuka.magadzire@gmail.com
+Laura Harrison, Climate Hazards Center (CHC), UCSB, harrison@geog.ucsb.edu
+Harikishan Jayanthi, Climate Hazards Center (CHC), UCSB, harikishanj@gmail.com
+Mario Rodriguez, Climate Hazards Center (CHC), UCSB, mrodriguez@fews.net
+
+      
+En cuanto al nombre de la UCR, su escudo y otros elementos gráficos son marcas registradas de la Universidad de Costa Rica y su uso se rige por la normativa vigente incluyendo el Manual de Identidad Visual de la Universidad de Costa Rica y el Reglamento de uso de símbolos universitarios y línea gráfica institucional (resolución R-232-2016). El nombre del CIGEFI pertenece de igual manera a la Institución, por lo cual esta licencia no podrá entenderse como una autorización para el uso de ninguno de los signos distintivos en mención.
+
+En cuanto al nombre de CHC, su logo y otros elementos gráficos pertenecen a la Universidad de California Santa Barbara, que son reservados y esta licencia no podrá entenderse como una autorización para el uso de ninguno de los signos distintivos en mención.
+
+Además, el nombre del software pertenece a CHC.  
+
+
+    2. CONDICIONES Y TÉRMINOS DEL USO, MODIFICACIÓN, COPIA Y REDISTRIBUCIÓN DEL SOFTWARE
+
+        2.1. Definiciones
+
+Para esta licencia se remite a las siguientes definiciones y términos según la ley citada y anexos a la misma:
+
+    1. Autores: las personas físicas que realizan la creación intelectual (obra), quienes poseen un derecho perpetuo e irrenunciable, tanto de ser mencionados como creadores como que no se mutile su obra con propósitos no honrados o autorizados. Esto incluye a: las y los ingenieros informáticos que programaron el código fuente; diseñadores gráficos que diseñaron la interfaz e iconos; fotógrafos que tomen fotos exclusivas para el producto, compositores musicales, ejecutantes y/o arreglistas de sonido que hayan compuesto música original, ejecutado música y/o grabado música y sonidos que se usan dentro del software; y cualquier otra persona que haya realizado aportes intelectuales significativos.
+    2. Copia o ejemplar: Es el soporte material que contiene la obra, como resultado de un acto de reproducción.
+    3. Código fuente: son las líneas de texto del programa de cómputo, es decir, un conjunto de instrucciones escritas que lee o interpreta la computadora para llevar a cabo ciertas funciones.
+    4. Derechos de autor: son los derechos que se le conceden al autor por las expresiones concretas que desarrolla derivadas de su producción intelectual. Existen dos tipos: patrimoniales y morales, los primeros se refieren al derecho exclusivo de usar la obra como se desee, inclusive la venta, y las libertades que el autor puede conceder a otros inclusive la cesión de sus derechos, y los segundos, al derecho del autor de reivindicar la autoría sobre su obra y oponerse a cualquier mutilación que cause perjuicio a su honor o reputación..
+    5. Licencia: es el permiso que el autor o el titular de los derechos de autor concede a un tercero, con respecto al uso de la obra. Consta de derechos y obligaciones.
+    6. Licenciatario: persona física o jurídica que hace uso del programa informático, bajo las libertades otorgadas por una licencia.
+    7. Marca: es un tipo de signo distintivo como un nombre, logotipo y/o cualquier otro elemento representativo que permite la identificación de un producto o servicio. En este caso se consideran las mencionadas previamente y que están registradas como propiedad de las entidades responsables de la creación del software.
+    8. Obra: “...deben entenderse todas las producciones en los campos literario, científico y artístico, cualquiera que sea la forma de expresión, tales como: libros, folletos, cartas y otros escritos; además, los programas de cómputo dentro de los cuales se incluyen sus versiones sucesivas y los programas derivados...” (Ley sobre Derechos de Autor y Derechos Conexos de CR).
+    9. Obra derivada: “...aquella que resulte de la adaptación de una obra originaria, siempre que sea una creación distinta, con carácter de originalidad.” (Ley sobre Derechos de Autor y Conexos), por tanto, Las mejoras o adaptaciones de este software se considerarán como obras derivadas de éste.
+    10. Programa de cómputo: “...es un conjunto de instrucciones expresadas mediante palabras, códigos, planes o en cualquier forma que, al ser incorporadas en un dispositivo de lectura automatizada, es capaz de hacer que un computador -un aparato electrónico o similar capaz de elaborar informaciones-, ejecute determinada tarea u obtenga determinado resultado. El programa de cómputo comprende también la documentación técnica y los manuales de uso.” (Reglamento a la Ley de Derechos de Autor y Derechos Conexos de Costa Rica)
+    11. Programa original: programa que se creó por primera vez y del cual parten otros para generar mejoras, modificaciones o parches (cambios que se aplican para corregir errores, ampliar funcionalidades o actualizaciones, entre otros).
+    12. Productor del programa de cómputo:  la persona natural o jurídica que publique la obra bajo su responsabilidad o que aparezca indicada como tal en la misma de la manera acostumbrada. Se le conoce como el titular de los derechos patrimoniales, por ende, es la instancia que representa a los autores de la obra (tiene la facultad de defender el derecho moral) y es propietario del derecho de explotación comercial de la misma, pudiendo autorizar actividades como: su uso, modificación, copia y redistribución. En el caso de este software, sería la UCR, cuyo representante legal es la persona que ocupa la Rectoría.
+    13. Usos honrados: los que no interfieren con la explotación normal de la obra ni causan un perjuicio irrazonable a los intereses legítimos del autor o los titulares del derecho de autor.
+    14. Usuarios: son todas aquellas personas físicas o jurídicas que usan el software y obtienen los beneficios del mismo. En esta categoría ingresan los licenciatarios del software.
+
+
+
+        2.2. Libertades otorgadas por esta licencia
+
+Mediante esta licencia, la UCR y CHC (licenciantes) brindan a la o el licenciatario las siguientes libertades:
+
+    a. Instalación y uso: la o el licenciatario puede usar el ejecutable del software para los fines y usos que fue creado u otros usos, siempre y cuando sean honrados.
+    b. Copia: la o el licenciatario puede realizar copias electrónicas, físicas o  por cualquier otro medio del ejecutable del software para ser empleado dentro de la organización solicitante . Así como del manual de usuario para el uso del mismo.
+    c. Fines comerciales indirectos al uso del software: quienes sistematicen datos metereológicos con el uso del software podrán comercializar y brindar servicios aledaños a dicha labor, tales como venta de reportes, capacitaciones o asesorías en las temáticas de su expertise, servicios similares. 
+
+        2.3. Limitaciones de uso del nombre del Software
+
+El nombre del software es propiedad de CHC,  y sólo puede ser empleado para uso exclusivo de las versiones oficiales del ejecutable que se pongan a disposición de las y los licenciatarios y usuarios potenciales. Si bien el licenciatario puede hacer copias e instalación del ejecutable, como ya fue indicado, no se autoriza el uso del nombre SMPG TOOL, ni de las marcas UCR o de CHC, excepto para la referencia  y  créditos de las instituciones creadoras del software.
+
+        2.4. Liberación de responsabilidad
+
+Ni la UCR ni CHC, ni sus dependencias, ni sus funcionarios, se hacen responsables por daños o perjuicios para la o el licenciatario, usuarios o terceros, por el uso del software, o los programas derivados del mismo con usos no honrados.
+
+Así mismo, las organizaciones creadoras se reservan generar nuevas versiones y actualizaciones del software, así como nuevas condiciones de la licencia, por ende, los licenciatarios son conscientes que para el uso de nuevas versiones del software podrían acogerse a nuevas condiciones o términos de licencia, según la fecha de emisión de la misma.
+
+
+
+        2.5. ¿Cómo aplicar estos términos a las modificaciones al código fuente?
+
+La o el licenciatario que haga modificaciones al código fuente, debe tomar en cuenta las siguientes indicaciones:
+
+    • Debe indicarle a terceros que es una versión modificada del código fuente original de software, incluyendo avisos al respecto e incluyendo la fecha respectiva de modificación. Sea en formatos electrónicos o físicos.
+    • Debe incluir avisos sobre las condiciones de la presente licencia para que terceros se informen de que pueden usar el código fuente original bajo estos términos y condiciones.
+    • Debe indicar claramente cuáles son las partes del código fuente que modificó y cuáles son del código fuente original.
+    • Debe brindar a terceros una licencia para usar el código fuente modificado bajo los mismos términos y condiciones en que ha recibido el software.
+    • Si el programa cuenta con interfaces interactivas debe incluir avisos legales apropiados.  (que debemos conversar aquí??)
+
+2.6.Contacto de la instancia redactora de la licencia
+
+Cabe destacar que para cualquier comunicación del licenciatario con el emisor de la licencia se ponen a disposición los siguientes datos:
+
+Correo electrónico: info.proinnova@ucr.ac.cr
+
+Teléfono: (506)  2511-1359
+Dirección: Vicerrectoría de Investigación, Ciudad Universitaria “Rodrigo Facio”, San Pedro de Montes de Oca, San José, Costa Rica.
+
+Lo anterior para aplicar términos y condiciones de esta licencia, o cualquier otro acuerdo separado de posibles relaciones de colaboración que puedan surgir.
+ 
+La Universidad de Costa Rica apoya los proyectos colaborativos de desarrollo de software en pro de la resolución de problemáticas de la sociedad y generar las transformaciones tecnológicas que se requieran.
+
+2.7. Vigencia de la licencia
+
+Esta licencia entra en vigencia a partir de la fecha de descarga del ejecutable. El licenciatario o la licenciataria, según sea su interés, deberá estar al tanto de la generación de nuevas versiones del software.
+

@@ -6,11 +6,14 @@ import os
 import numpy 
 import pandas
 from scipy.stats import rankdata
-#============================================================
+
+
 year_format = lambda number: int(number // 100)
-#============================================================
+
+
 prob = lambda value, y: round((value / y) * 100)
-#============================================================
+
+
 def season(fst_dek, lst_dek, deks=False):
 	'''Computes the seasonal window params to 
 	simplify coding in the core module.
@@ -39,7 +42,8 @@ def season(fst_dek, lst_dek, deks=False):
 		return season, start
 	else:
 		return season, dekads
-#============================================================
+
+
 def read(csv_file):
 	'''Imports the raw rainfall dataset and shreds it
 	into ID location codes and raw data.
@@ -88,7 +92,8 @@ def read(csv_file):
 		raw_data = numpy.array(raw_data, dtype=float)
 
 		return fst_yr, lst_yr, ID, raw_data, []
-#============================================================
+
+
 def spawn_deks():
 	'''
 	:return: a standard dictionary of dekads
@@ -106,7 +111,8 @@ def spawn_deks():
 	}
 
 	return DEK
-#============================================================
+
+
 def sdE(past_table, present_table):
 	''' Computes the sum of dekad error.
 	
@@ -131,7 +137,8 @@ def sdE(past_table, present_table):
 		SDE.append(rankdata(yr, method='ordinal'))
 
 	return SDE
-#============================================================
+
+
 def ssE(past_accums, present_accums):
 	'''
 	'''
@@ -156,7 +163,8 @@ def ssE(past_accums, present_accums):
 		rank.append(rnk)
 
 	return rank
-#============================================================
+
+
 def dek_list():
 	DEK = [
 		   '1-Jan', '2-Jan', '3-Jan', '1-Feb', '2-Feb', 
@@ -170,7 +178,8 @@ def dek_list():
 	]
 
 	return DEK
-#============================================================
+
+
 def Stats(vector, extrapercs=False):
 	'''Computes required SMPG statistics: LTM, stDev, 
 	33th/67th percentiles, 120-80% varation, and 
@@ -207,7 +216,8 @@ def Stats(vector, extrapercs=False):
 		return stats
 	else:
 		return stats, percs
-#============================================================
+
+
 def outlook(percs, ensemble):
 	'''Computes the probability at the en of the season
 	by clasifiyng how many past years are above 67th perc,
@@ -236,7 +246,8 @@ def outlook(percs, ensemble):
 		outlook.append((prob(A, y), prob(N, y), prob(B, y)))
 
 	return outlook
-#============================================================
+
+
 def export_analogs(ID, data, dirpath):
 	'''A function that exports a CSV file with the first
 	top 10 analog years for each location.
@@ -259,7 +270,8 @@ def export_analogs(ID, data, dirpath):
 	# Building dataframe
 	df = pandas.DataFrame(data=data, index=ID, columns=cols)
 	df.to_csv('{dir}/analogs.csv'.format(dir = dirpath))
-#============================================================
+
+
 def export_summary(iD, ca_stats, ce_stats, ltm_stats, dirpath):
 	'''Exports all climatological statistics from the spawned
 	tables in the reports.
@@ -324,7 +336,8 @@ def export_summary(iD, ca_stats, ce_stats, ltm_stats, dirpath):
 	#print(data)
 	df = pandas.DataFrame(data=data, index=iD, columns=cols)
 	df.to_csv('{dir}/statistics.csv'.format(dir = dirpath))	
-#============================================================
+
+
 def export_stats(iD, ltm_stats, outlook, scenario, dirpath):
 	'''Computes a summary of probabilities based on LTA
 	percentages and the probability at the end of season.
@@ -354,7 +367,8 @@ def export_stats(iD, ltm_stats, outlook, scenario, dirpath):
 	]
 	df = pandas.DataFrame(data=data, index=iD, columns=cols)
 	df.to_csv('{dir}/summary.csv'.format(dir = dirpath))	
-#============================================================
+
+
 def lt_stats(act_accums, sstats, estats):
 	'''Computes the long term average statistics for
 	seasonal and ensemble featured tables. This function
@@ -377,7 +391,8 @@ def lt_stats(act_accums, sstats, estats):
 		lt_sts.append([TOTAL, LTA, PCT, EPCT])
 
 	return lt_sts
-#============================================================
+
+
 def filepath(rel_path, *filenames):
 	'''A method to get the absolute path for a file 
 	directory. It solves the relative path problem when
@@ -391,23 +406,9 @@ def filepath(rel_path, *filenames):
 	abspath = os.path.join(path, rel_path)
 	paths = [abspath + files for files in filenames]
 	return paths
-#============================================================
-#============================================================
 
 
 
-'''
-fst_yr, lst_yr, ID, raw_data, scenarios = read('sample2.csv')
-raw_data = numpy.array(raw_data)
-raw_data=raw_data.astype(float)
-print(int('scenario'))
-'''
 
-'''
-data = pandas.read_csv('sample2.csv', header=None, dtype={0:object}, keep_default_na=False)
-scenarios = data.iloc[1:,-1:].replace([''], [-1])
-#scenarios = numpy.array(scenarios, dtype=int).transpose()[0]
 
-#scn = data['scenario'].head()
-print(scenarios)
-'''
+

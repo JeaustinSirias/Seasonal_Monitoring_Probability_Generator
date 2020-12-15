@@ -9,12 +9,14 @@ from .utils import *
 from .core import smpgTool
 from ttk import Combobox
 
+
 class App():
+
     def __init__(self, master):
 
         # LOADING ABS PATH
-        files = 'background.gif', 'icon.gif'
-        bgs, icon = filepath('image/', *files)
+        files = 'background.gif', 'icon.gif', 'LICENCE.pdf'
+        bgs, icon, self.lic = filepath('image/', *files)
 
         # BACKGROUND CANVAS
         self.background = tk.PhotoImage(file=bgs)
@@ -191,7 +193,8 @@ class App():
         self.SAVE.grid(row=3, column=0, sticky=tk.W)
         self.DISPLAY.grid(row=4, column=0, sticky=tk.W)
         self.SCENARIO.grid(row=5, column=0, sticky=tk.W)
-    #=====================================================================================================
+    
+
     def Browse(self):
         file = tk.filedialog.askopenfile(mode='r', filetypes=[('csv files', '*.csv')])
         indir = str(file.name)
@@ -215,7 +218,8 @@ class App():
 
         # Show success message if everything went ok
         tk.messagebox.showinfo('Loaded', 'Input dataset goes from {} to {}'.format(fst_yr, lst_yr))
-    #=====================================================================================================
+    
+
     def Run(self, fst_cm, lst_cm, fst_dk, lst_dk, analogs_num):
         # Setting up conditions to run & error messages
         if self.dataset == None:
@@ -342,7 +346,8 @@ class App():
                 'Set season exceeds the 36-dekad boundaries.'
                 )
             return
-    #=====================================================================================================
+    
+
     def Help(self, master):
         '''Opens up an 'about' window to show some
         some legal software details.
@@ -357,15 +362,23 @@ class App():
         window.iconphoto(True, self.logo)
 
         # LABELS
-        title = tk.Label(window, text='Seasonal Monitoring & Probability\nGenerator (SMPG) Project v1.2.5', 
-              font=('Arial', 13), justify=tk.CENTER)
-        version = tk.Label(window, text = 'Software under a MIT license\nCopyright (c) 2020', 
-                font = ('Arial', 12), justify=tk.CENTER)
+        title = tk.Label(
+            window, 
+            text='Seasonal Monitoring & Probability\nGenerator (SMPG) Project v1.2.5', 
+            font=('Arial', 13), 
+            justify=tk.CENTER
+        )
+        version = tk.Label(
+            window, 
+            text = 'Software under a PROINNOVA license\nCopyright (c) 2020', 
+            font = ('Arial', 12), 
+            justify=tk.CENTER
+        )
         labelLogo = tk.Label(window, image=self.logo)
         labelLogo.grid(row=0, column=1, pady=15)
 
         # BUTTONS
-        btn = tk.Button(window, text='Tutorial/Help', command=lambda:webbrowser.open_new(r'./docs.pdf'))
+        btn = tk.Button(window, text='LICENCE', command=lambda:webbrowser.open_new(self.lic))
         upbtn = tk.Button(window, text='Update Center', 
               command=lambda: tk.messagebox.showinfo('Update Center', 'Coming soon'))
 
@@ -374,4 +387,5 @@ class App():
         btn.grid(row=3, column=1, pady=10)
         upbtn.grid(row = 4, column = 1, pady = 10)   
         version.grid(row=2, column=1, pady=10)
-    #=====================================================================================================
+    
+

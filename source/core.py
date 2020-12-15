@@ -9,6 +9,7 @@ from scipy.stats import rankdata
 from collections import defaultdict
 from matplotlib.gridspec import GridSpec
 
+
 class smpgTool():
 	'''A class that contains all the necessary methods to
 	build the SMPG.
@@ -38,7 +39,7 @@ class smpgTool():
 		self.forecast = fct
 		self.actual = []
 		self.actualacm = []
-#=====================================================================
+
 	def general_table(self, raw_data):
 		'''The main entry table. Classifies rainfall data by 
 		location and sets up a 2D grid map as [dekad, year]
@@ -61,7 +62,7 @@ class smpgTool():
 			current_yr_table.append(current)
 
 		return main_table, current_yr_table
-#=====================================================================
+
 	def Average(self, main_table):
 		'''Computes long-term average rows for each of the
 		36 dekadals in every location detected in the 
@@ -79,7 +80,7 @@ class smpgTool():
 
 			lta_vect.append(lta)
 		return lta_vect
-#=====================================================================
+
 	def seasonal_table(self, main_table, current_yr_table):
 		'''Computes the general table and trims the chosen 
 		season by the user, but also it refills each 
@@ -125,7 +126,7 @@ class smpgTool():
 			seasonal_table.append(loc_s)
 
 		return seasonal_table, present_table
-#=====================================================================
+
 	def seasonal_accummulations(self, seasonal_table, curr):
 		'''Computes the accummulations over each year column
 		only in the chosen season. It does it for all past
@@ -176,7 +177,7 @@ class smpgTool():
 				self.actualacm.append(arr)
 
 		return seasonal_accumulations, current_accumulations, Dict
-#=====================================================================
+
 	def seasonal_ensemble(self, seasonal_table, present_accum):
 		'''
 		:param:
@@ -203,7 +204,7 @@ class smpgTool():
 			ensemble.append(dict(zip(self.yrs, loc)))
 
 		return ensemble
-#=====================================================================
+
 	def compute_analogs(self, SSE_ranking, SDE_ranking):
 
 		# Ranking adittions
@@ -231,7 +232,7 @@ class smpgTool():
 			analogs.append(an)
 
 		return ranking, analogs
-#=====================================================================
+
 	def analog_accumulation(self, analogs, accum_dict):
 		'''Computes seasonal accumulations, but considering
 		only the analog years amount chosen by the user.
@@ -248,7 +249,7 @@ class smpgTool():
 
 		stats, percs = Stats(vector, extrapercs=True)
 		return vector, stats, percs
-#=====================================================================
+
 	def climatological_accumulation(self, accum_dict):
 		'''Computes seasonal accumulations, but considering
 		the climatological window chosen by user.
@@ -263,7 +264,7 @@ class smpgTool():
 		stats, percs = Stats(vector, extrapercs=True)
 
 		return stats, percs
-#=====================================================================
+
 	def scenario_analysis(self, values, ensemble):
 		'''A method to compute the analysis for custom
 		scenarios according to input rainfall values for
@@ -292,7 +293,7 @@ class smpgTool():
 			stats.append((prob(HI, size), prob(LO, size)))
 	
 		return stats
-#=====================================================================
+
 	def analog_ensemble(self, analogs, ensemble):
 		'''
 		Computes the ensemble, but considering only 
@@ -306,7 +307,7 @@ class smpgTool():
 
 		stats = Stats(vector)
 		return vector, stats
-#=====================================================================
+
 	def climatological_ensemble(self, ensemble):
 
 		vector = []
@@ -316,7 +317,7 @@ class smpgTool():
 
 		stats = Stats(vector)
 		return vector, stats
-#=====================================================================
+
 	def plotter(self, deks, num, iD, LTA, actyr, ssn, acms, asts, 
 				cacms, ensb, ests, angs, aok, eok, aasts, cests,
 				saltm, celtm, anlist, ascn, cscn, dirpath):
@@ -741,7 +742,7 @@ class smpgTool():
 		if self.savefile:
 			fig.savefig('{}/{}_rep.png'.format(dirpath, iD))
 
-#=====================================================================
+
 	def reports(self, _iD, _lta, _actyr, _acms, _asts, _cacms, _ensb, 
 	            _ests, _angs, _aok, _eok, _aasts, _cests, _altm,
 				_eltm, _anlist, _ascn, _cscn, dirpath):
@@ -772,9 +773,10 @@ class smpgTool():
 			self.plotter(deks, place, iD, lta, yr, ssn, acms, asts, 
 			cacms, ensb, ests, angs, aok, eok, aasts, cests, altm, 
 			eltm, anlist, ascn, cscn, dirpath)
+			
 		if self.showfile:
 			plt.show()
 			return
 
 		return plt.close('all')
-#=====================================================================
+

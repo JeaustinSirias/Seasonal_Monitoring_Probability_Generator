@@ -15,22 +15,22 @@ class unittesting(TestCase):
         """
         Checks the functionality of the addition.
         """
-        assert 
+        pass 
 
     def statistics_test(self):
         """
         Checks the functionality of the subtraction.
         """
-        assert
+        pass
 
     def shapefile_test(self):
         """
         Checks the functionality of the multiplication.
         """
-        assert 
+        pass
 
     def calcs(self):
         """
         Checks the functionality of the division.
         """
-        assert 
+        pass
