@@ -7,22 +7,24 @@ import numpy
 import pandas
 from scipy.stats import rankdata
 
+"""Lambda functions
 
+	year_format: returns the whole part of a number
+	prob: computes rounded probability
+"""
 year_format = lambda number: int(number // 100)
-
-
 prob = lambda value, y: round((value / y) * 100)
 
 
 def season(fst_dek, lst_dek, deks=False):
-	'''Computes the seasonal window params to 
+	"""Computes the seasonal window params to 
 	simplify coding in the core module.
 
 	:param fst_dek: first dekad in the season
 	:param lst_dek: last dekad in the season
 	:param getdeks: If false, only returns season len
 	:return: season length, season dekads
-	'''
+	"""
 	lib = spawn_deks()
 	dekads = dek_list()
 	start = lib[fst_dek]
@@ -45,12 +47,12 @@ def season(fst_dek, lst_dek, deks=False):
 
 
 def read(csv_file):
-	'''Imports the raw rainfall dataset and shreds it
+	"""Imports the raw rainfall dataset and shreds it
 	into ID location codes and raw data.
 
 	:param csv_file: CSV dataset
 	:return: init and end year, raw data and IDs
-	'''
+	"""
 	# Read raw dataset as Pandas dataframe
 	data = pandas.read_csv(
 		csv_file, 
@@ -95,9 +97,11 @@ def read(csv_file):
 
 
 def spawn_deks():
-	'''
+	"""A fuction to spawn a standard dictionary of dekads
+	as dekad:number.
+
 	:return: a standard dictionary of dekads
-	'''
+	"""
 	DEK = {
 		   '1-Jan':  0, '2-Jan':  1, '3-Jan': 2, '1-Feb':  3, 
 		   '2-Feb':  4, '3-Feb':  5, '1-Mar': 6, '2-Mar':  7, 
@@ -114,12 +118,12 @@ def spawn_deks():
 
 
 def sdE(past_table, present_table):
-	''' Computes the sum of dekad error.
+	"""Computes the sum of dekad error.
 	
 	:param past_table: 
 	:param present_table:
 	:return: A sum dekad error vector
-	'''
+	"""
 
 	x, y = numpy.array(present_table).shape
 	dim2= numpy.array(past_table).shape[1]
@@ -140,9 +144,13 @@ def sdE(past_table, present_table):
 
 
 def ssE(past_accums, present_accums):
-	'''
-	'''
-	# Get the difference squared 
+	"""Computes the sum of square error.
+
+	:param past_accums: accumulations from past years
+	:param present_accums: accumulations from present year
+	:return: ranked results from execution
+	"""
+	# Gets the difference squared 
 	x, y = numpy.array(present_accums).shape
 	dim2 = numpy.array(past_accums).shape[1]
 	SSE = []
@@ -157,7 +165,7 @@ def ssE(past_accums, present_accums):
 			row.append(sse)
 		SSE.append(row)
 
-	# Rank data
+	# Ranks data
 	for place in range(x):
 		rnk = rankdata(SSE[place], method='ordinal')
 		rank.append(rnk)
@@ -166,6 +174,11 @@ def ssE(past_accums, present_accums):
 
 
 def dek_list():
+	"""A function which generates a list of the 
+	36 dekads present in one year.
+
+	:return: a list of dekads as num-month
+	"""
 	DEK = [
 		   '1-Jan', '2-Jan', '3-Jan', '1-Feb', '2-Feb', 
 		   '3-Feb', '1-Mar', '2-Mar', '3-Mar', '1-Apr', 
@@ -181,14 +194,14 @@ def dek_list():
 
 
 def Stats(vector, extrapercs=False):
-	'''Computes required SMPG statistics: LTM, stDev, 
+	"""Computes required SMPG statistics: LTM, stDev, 
 	33th/67th percentiles, 120-80% varation, and 
 	LTM+/-StDev, in that order
 
 	:param vector: Thentry 3D seasonal/ensemble array
 	:param extrapercs: If false just retuns stats
 	:return: 2D statistics vector
-	'''
+	"""
 	stats = []
 	percs = []
 	x, y, z = numpy.array(vector).shape
@@ -219,7 +232,7 @@ def Stats(vector, extrapercs=False):
 
 
 def outlook(percs, ensemble):
-	'''Computes the probability at the en of the season
+	"""Computes the probability at the en of the season
 	by clasifiyng how many past years are above 67th perc,
 	between 67th and 33rd percs and below 33rd perc from
 	seasonal climatological stats.
@@ -227,7 +240,7 @@ def outlook(percs, ensemble):
 	:param percs: array of 33rd and 67th percs tuples
 	:param ensemble: climatological or analog ensemble arr
 	:return outlook:
-	'''
+	"""
 	outlook = []
 	#x, y, z = numpy.array(ensemble).shape
 	x = len(percs)
@@ -249,13 +262,13 @@ def outlook(percs, ensemble):
 
 
 def export_analogs(ID, data, dirpath):
-	'''A function that exports a CSV file with the first
+	"""A function that exports a CSV file with the first
 	top 10 analog years for each location.
 
 	:param ID: A vector with the name of each place.
 	:param data: A vector with a dict per each place
 	:return: nothing
-	'''
+	"""
 	if dirpath == None:
 		return
 
@@ -273,16 +286,15 @@ def export_analogs(ID, data, dirpath):
 
 
 def export_summary(iD, ca_stats, ce_stats, ltm_stats, dirpath):
-	'''Exports all climatological statistics from the spawned
+	"""Exports all climatological statistics from the spawned
 	tables in the reports.
 
-	:param iD: Locations' names vector
-	:param:
-	:param:
-	:param:
-	:param:
-	:return: nothing
-	'''
+	:param iD: Locations'names vector
+	:param ca_stats: analog statistics vector
+	:param ce_stats: emsemble statistics vector
+	:param ltm_stats: long-term-median statistics vector
+	:param dirpath: expects a path directory string
+	"""
 	if dirpath == None:
 		return
 	cols = [
@@ -306,6 +318,7 @@ def export_summary(iD, ca_stats, ce_stats, ltm_stats, dirpath):
 		'E_LTA_Value', 
 		'E_LTA_pct'
 	]
+
 	sts1 = []
 	sts2 = []
 	nums = [1, 2, 3, 4, 5, 8, 9]
@@ -333,21 +346,19 @@ def export_summary(iD, ca_stats, ce_stats, ltm_stats, dirpath):
 	     a, b, c, edsv, epct3, epct6, emu, esgm, eavg, em, 
 		 avg, d]).transpose()
 
-	#print(data)
 	df = pandas.DataFrame(data=data, index=iD, columns=cols)
 	df.to_csv('{dir}/statistics.csv'.format(dir = dirpath))	
 
 
 def export_stats(iD, ltm_stats, outlook, scenario, dirpath):
-	'''Computes a summary of probabilities based on LTA
+	"""Computes a summary of probabilities based on LTA
 	percentages and the probability at the end of season.
 
 	:param ltm_stats: climatological long term stats 
 	:param outlook: Probability of rainfall at the end.
 	:param scenario: Scenario tuples for each place
 	:param dirpath: file directory to save CSV file
-	:return: nothing
-	'''
+	"""
 	if dirpath == None:
 		return
 	
@@ -370,7 +381,7 @@ def export_stats(iD, ltm_stats, outlook, scenario, dirpath):
 
 
 def lt_stats(act_accums, sstats, estats):
-	'''Computes the long term average statistics for
+	"""Computes the long term average statistics for
 	seasonal and ensemble featured tables. This function
 	must be optimized next versions.
 
@@ -378,7 +389,7 @@ def lt_stats(act_accums, sstats, estats):
 	:param sstats: seasonal statistics vector
 	:param estats: ensemble statistics vector
 	:return: LTA statistics vector
-	'''
+	"""
 	lt_sts = []
 	LOCS, SIZE = numpy.array(act_accums).shape
 	for place in range(LOCS):
@@ -394,14 +405,14 @@ def lt_stats(act_accums, sstats, estats):
 
 
 def filepath(rel_path, *filenames):
-	'''A method to get the absolute path for a file 
+	"""A method to get the absolute path for a file 
 	directory. It solves the relative path problem when
 	a .py asks for a file that is not in its directory.
 
 	:param rel_path: the relative path i.e, '/images/'
 	:param *filenames: A tuple with the files names
 	:return: a string with the absolute path of a file
-	'''
+	"""
 	path = os.path.dirname(__file__)
 	abspath = os.path.join(path, rel_path)
 	paths = [abspath + files for files in filenames]

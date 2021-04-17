@@ -11,6 +11,7 @@ from ttk import Combobox
 
 
 class App():
+    """A class which builds the graphic user interfase"""
 
     def __init__(self, master):
 
@@ -196,6 +197,9 @@ class App():
     
 
     def Browse(self):
+        """Browses local files directories to import
+        CSV files into the SMPG enviroment"""
+
         file = tk.filedialog.askopenfile(mode='r', filetypes=[('csv files', '*.csv')])
         indir = str(file.name)
         self.entry.delete(0, tk.END)
@@ -221,7 +225,9 @@ class App():
     
 
     def Run(self, fst_cm, lst_cm, fst_dk, lst_dk, analogs_num):
-        # Setting up conditions to run & error messages
+        """Executes smpgTools class from core module"""
+
+        # Error handling statements
         if self.dataset == None:
             tk.messagebox.showerror('No dataset loaded', 'You must input a dataset first.')
             return
@@ -349,11 +355,11 @@ class App():
     
 
     def Help(self, master):
-        '''Opens up an 'about' window to show some
-        some legal software details.
+        """Opens up an 'about' window to show
+        some legal software details and information.
 
         :param master: the master frame variable
-        '''
+        """
         # STRUCTURE
         window = tk.Toplevel(master, width=300, height=400)
         window.title('About SMPG Project')

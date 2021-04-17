@@ -11,15 +11,16 @@ from matplotlib.gridspec import GridSpec
 
 
 class smpgTool():
-	'''A class that contains all the necessary methods to
-	build the SMPG.
-	'''
+	"""A class which contains all the necessary methods to
+	build the SMPG application.
+	"""
 	def __init__(self, fst_yr, lst_yr, fst_cm, lst_cm, fst_dk, 
 				 lst_dk, scn, places_num, analogs_num, savefile,
 				 showfile, fct):
 
-		self.fst_yr = fst_yr
-		self.lst_yr = lst_yr
+		# Attributes
+		self.fst_yr = fst_yr 
+		self.lst_yr = lst_yr 
 		self.fst_cm = fst_cm
 		self.lst_cm = lst_cm
 		self.fst_dk = fst_dk
@@ -40,14 +41,15 @@ class smpgTool():
 		self.actual = []
 		self.actualacm = []
 
+
 	def general_table(self, raw_data):
-		'''The main entry table. Classifies rainfall data by 
+		"""The main entry table. Classifies rainfall data by 
 		location and sets up a 2D grid map as [dekad, year]
 		
 		:param raw_data: Contains the raw CSV data format
 		:return main_table: The main SMPG table
 		:return current_yr_table: Current year array
-		'''
+		"""
 		main_table = []
 		current_yr_table = []
 
@@ -63,12 +65,13 @@ class smpgTool():
 
 		return main_table, current_yr_table
 
+
 	def Average(self, main_table):
-		'''Computes long-term average rows for each of the
+		"""Computes long-term average rows for each of the
 		36 dekadals in every location detected in the 
 		input dataset
 		:param main_table: The SMPG general table 
-		'''
+		"""
 		lta_vect = []
 		for i in range(self.places_num):
 			lta = []
@@ -81,18 +84,18 @@ class smpgTool():
 			lta_vect.append(lta)
 		return lta_vect
 
+
 	def seasonal_table(self, main_table, current_yr_table):
-		'''Computes the general table and trims the chosen 
+		"""Computes the general table and trims the chosen 
 		season by the user, but also it refills each 
 		missing dekad with the next elements in []
 
 		:param main_table: The SMPG general table
 		:param current_yr_table:
-		'''
+		"""
 		boolean_table = []
 		seasonal_table = []
 		present_table  = []
-		#SEASON, START = utils.season(self.fst_dk, self.lst_dk)
 
 		# STEP 1: SEASONAL TABLE:
 		for i in range(self.places_num):
@@ -127,8 +130,9 @@ class smpgTool():
 
 		return seasonal_table, present_table
 
+
 	def seasonal_accummulations(self, seasonal_table, curr):
-		'''Computes the accummulations over each year column
+		"""Computes the accummulations over each year column
 		only in the chosen season. It does it for all past
 		years an for the current year (until it's possible)
 
@@ -137,7 +141,7 @@ class smpgTool():
 		:return seasonal_accumulations:
 		:return current_accumulations:
 		:return Dict:
-		'''
+		"""
 		Dict = []
 		seasonal_accumulations = []
 		current_accumulations = []
@@ -178,12 +182,15 @@ class smpgTool():
 
 		return seasonal_accumulations, current_accumulations, Dict
 
+
 	def seasonal_ensemble(self, seasonal_table, present_accum):
-		'''
-		:param:
-		:param:
-		:return:
-		'''
+		"""Computes the ensemble analysis for each location 
+		of the dataset
+
+		:param seasonal_table: seasonal accumulations from past years
+		:param present_accum: Accumulation for current year 
+		:return ensemble: the ensemble matrix
+		"""
 
 		dim2 = len(present_accum[0])
 		dim3 = len(seasonal_table[0][0])
@@ -205,7 +212,17 @@ class smpgTool():
 
 		return ensemble
 
+
 	def compute_analogs(self, SSE_ranking, SDE_ranking):
+		"""Computes the analog year algorithm based on 
+		the sum of the dekads error and the sum squared
+		error.
+
+		:param SSE_ranking: sum-square-error ranking
+		:param SDE_ranking: sum-dekads-error ranking
+		:return ranking: the absolute rank for each location
+		:return analogs: Matrix of analog years of each location
+		"""
 
 		# Ranking adittions
 		ranking = []
@@ -233,14 +250,17 @@ class smpgTool():
 
 		return ranking, analogs
 
+
 	def analog_accumulation(self, analogs, accum_dict):
-		'''Computes seasonal accumulations, but considering
+		"""Computes seasonal accumulations, but considering
 		only the analog years amount chosen by the user.
 
-		:param:
-		:param:
-		:return:
-		'''
+		:param analogs: matrix of analog years
+		:param accum_dict: dictionary of past year accumulations
+		:return vector: undefined
+		:return stats: a matrix of statistics for each location
+		:return percs: a matrix of percentiles for each location
+		"""
 		vector = []
 		for place in range(self.places_num):
 			List = analogs[place]
@@ -250,13 +270,15 @@ class smpgTool():
 		stats, percs = Stats(vector, extrapercs=True)
 		return vector, stats, percs
 
+
 	def climatological_accumulation(self, accum_dict):
-		'''Computes seasonal accumulations, but considering
+		"""Computes seasonal accumulations, but considering
 		the climatological window chosen by user.
 
-		:param:
-		:return:
-		'''
+		:param accum_dict: stores accumulations as year:accum
+		:return stats: a matrix of statistics for each location
+		:return percs: a matrix of percentiles for each location
+		"""
 		vector = []
 		for place in range(self.places_num):
 			v = [accum_dict[place][year] for year in self.clim_wind]
@@ -265,15 +287,16 @@ class smpgTool():
 
 		return stats, percs
 
+
 	def scenario_analysis(self, values, ensemble):
-		'''A method to compute the analysis for custom
+		"""A method to compute the analysis for custom
 		scenarios according to input rainfall values for
 		each place from the dataset.
 
 		:param values: a vector with custom rainfall values
 		:param ensemble: the ensemble array (analog or climatological)
 		:return: a vector of tuples with the HI and LO prob of being
-		'''
+		"""
 		# Initiates the statistical vector
 		stats = []
 		size = len(ensemble[0])
@@ -294,11 +317,16 @@ class smpgTool():
 	
 		return stats
 
+
 	def analog_ensemble(self, analogs, ensemble):
-		'''
-		Computes the ensemble, but considering only 
+		"""Computes the ensemble, but considering only 
 		the analog years amount chosen by the user.
-		'''
+
+		:param analogs: the analog years matrix
+		:param ensemble: the ensemble matrix
+		:return vector:
+		:return stats: statistics based on chosen analogs 
+		"""
 		vector = []
 		for place in range(self.places_num):
 			List = analogs[place]
@@ -308,8 +336,16 @@ class smpgTool():
 		stats = Stats(vector)
 		return vector, stats
 
-	def climatological_ensemble(self, ensemble):
 
+	def climatological_ensemble(self, ensemble):
+		"""Computes the ensemble by using the 
+		climatological window chosen by user
+		i.e. from 1981 to 2000
+
+		:param ensemble: the ensemble matrix
+		:return vector:
+		:return stats: statistics based on climatological window
+		"""
 		vector = []
 		for place in range(self.places_num):
 			v = [ensemble[place][year] for year in self.clim_wind]
@@ -318,10 +354,11 @@ class smpgTool():
 		stats = Stats(vector)
 		return vector, stats
 
+
 	def plotter(self, deks, num, iD, LTA, actyr, ssn, acms, asts, 
 				cacms, ensb, ests, angs, aok, eok, aasts, cests,
 				saltm, celtm, anlist, ascn, cscn, dirpath):
-		'''An iterable method designed to output a single 
+		"""An iterable method designed to output a single 
 		report.
 
 		:param deks: An array with the seasonal dekads
@@ -346,7 +383,7 @@ class smpgTool():
 		:param ascn: analog scenario statistic
 		:param cscn: climatological scenario statistic
 		:param Dir: Directory where the report will be saved
-		''' 
+		"""
 		# Frequently used variables
 		col = 'Analog years', 'Climatology'
 		altm, astd, athrd, asxth, amu, asgm, ah, al, aavg, amed = aasts
@@ -746,6 +783,12 @@ class smpgTool():
 	def reports(self, _iD, _lta, _actyr, _acms, _asts, _cacms, _ensb, 
 	            _ests, _angs, _aok, _eok, _aasts, _cests, _altm,
 				_eltm, _anlist, _ascn, _cscn, dirpath):
+		"""A method to iterate the plotter definition in order
+		to generate reports for all of the locations from the
+		dataset
+
+		:param: args
+		"""
 
 		# Setting up from-behind season window
 		ssn, deks = season(self.fst_dk, self.lst_dk, deks=True)
